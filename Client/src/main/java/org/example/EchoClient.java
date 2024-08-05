@@ -2,7 +2,6 @@ package org.example;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.ObjectWriter;
 
 import java.io.IOException;
 import java.net.*;
@@ -10,7 +9,8 @@ import java.net.*;
 public class EchoClient {
     private DatagramSocket socket;
     private InetAddress address;
-    ObjectWriter mapper = new ObjectMapper().writer().withDefaultPrettyPrinter();
+    ObjectMapper mapper = new ObjectMapper();
+
 
     private byte[] buf;
 
@@ -20,7 +20,7 @@ public class EchoClient {
     }
 
     public void sendEcho(String msg) throws IOException {
-        DatagramPacket packet = fromMessageToPacket(msg);
+        DatagramPacket packet = fromMessageToPacket(msg.trim());
         socket.send(packet);
     }
 

@@ -12,8 +12,8 @@ import static java.lang.Thread.sleep;
 //TIP To <b>Run</b> code, press <shortcut actionId="Run"/> or
 // click the <icon src="AllIcons.Actions.Execute"/> icon in the gutter.
 public class Main {
-    public static final String MY_NICKNAME = "ECHIPA1";
-    public static final Integer PORT = 7401;
+    public static final String MY_NICKNAME = "echipa1";
+    public static final Integer PORT = 3000;
     public static final String IP = "10.4.1.255";
 
     public static void main(String[] args) throws InterruptedException {

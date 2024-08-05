@@ -14,7 +14,7 @@ import java.util.List;
 public class EchoServer {
     private DatagramSocket socket;
     private boolean stillRunning;
-    private byte[] buf = new byte[256];
+    private byte[] buf = new byte[1024];
     List<String> connectedUsers = new ArrayList<>();
     ObjectMapper mapper = new ObjectMapper();
 
@@ -31,8 +31,7 @@ public class EchoServer {
             Message message = fromPacketToMessage(packet);
             if (message.getMessage().startsWith("!")) {
                 handleCommands(message);
-            }
-            if(connectedUsers.contains(message.getNickname())) {
+            } else if (connectedUsers.contains(message.getNickname())) {
                 System.out.println(message);
             }
 
@@ -42,9 +41,8 @@ public class EchoServer {
 
     private Message fromPacketToMessage(DatagramPacket packet) throws JsonProcessingException {
         String received = new String(packet.getData(), 0, packet.getLength());
-        //System.out.println("received: " + received);
-        Message message = mapper.readValue(received, Message.class);
-        return message;
+//        System.out.println("received: " + received);
+        return mapper.readValue(received, Message.class);
     }
 
     private void handleCommands(Message message) throws IOException {
@@ -61,11 +59,13 @@ public class EchoServer {
 
         if (message.getMessage().equals("!ack " + Main.MY_NICKNAME)) {
             connectedUsers.add(message.getNickname());
+            System.out.println(message.getNickname() + " acknowledged connection");
             return;
         }
 
         if (message.getMessage().equals("!bye " + Main.MY_NICKNAME) && connectedUsers.contains(message.getNickname())) {
             connectedUsers.remove(message.getNickname());
+            System.out.println(message.getNickname() + " disconnected");
         }
     }
 
