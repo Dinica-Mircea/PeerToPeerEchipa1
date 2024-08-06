@@ -16,7 +16,7 @@ public class CommunicationConverter {
 
     DatagramPacket fromMessageToPacket(String msg, String IP, Integer PORT) throws UnknownHostException, IncorrectMessageFormatException {
         Message message = new Message(CommunicationProperties.MY_NICKNAME, msg);
-        String json = null;
+        String json;
         try {
             json = mapper.writeValueAsString(message);
         } catch (JsonProcessingException e) {
@@ -28,7 +28,7 @@ public class CommunicationConverter {
 
     public Message fromPacketToMessage(DatagramPacket packet) throws JsonProcessingException {
         String received = new String(packet.getData(), 0, packet.getLength());
-//        System.out.println("received: " + received);
+        System.out.println("received: " + received);
         return mapper.readValue(received, Message.class);
     }
 }

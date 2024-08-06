@@ -28,21 +28,16 @@ public class ChatApplication {
             while (true) {
                 Scanner scanner = new Scanner(System.in);
                 String message = scanner.nextLine();
-
-                if (Objects.equals(message, "!stop")) {
+                if (message.startsWith("!")) {
                     echoClient.sendEcho(message);
+                }
+                if (Objects.equals(message, "!stop")) {
                     echoClient.close();
                     break;
-                } else {
-
-                    if (message.startsWith("!")) {
-                        echoClient.sendEcho(message);
-                    }
-
                 }
             }
         } catch (Exception e) {
-            System.out.println(e.getMessage());
+            throw new RuntimeException(e);
         }
     }
 }
