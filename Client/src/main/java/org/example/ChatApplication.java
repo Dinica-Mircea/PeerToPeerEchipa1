@@ -28,9 +28,9 @@ public class ChatApplication {
             while (true) {
                 Scanner scanner = new Scanner(System.in);
                 String message = scanner.nextLine();
-                if (message.startsWith("!")) {
+                //if (message.startsWith("!")) {
                     echoClient.sendEcho(message);
-                }
+                //}
                 if (Objects.equals(message, "!stop")) {
                     echoClient.close();
                     break;
