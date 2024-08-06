@@ -26,7 +26,7 @@ public class CommunicationConverter {
         return new DatagramPacket(buffer, buffer.length, InetAddress.getByName(IP), PORT);
     }
 
-    String fromMessageToJson(String sender,String receiver,String msg) throws UnknownHostException, IncorrectMessageFormatException {
+    String fromMessageToJson(String sender,String receiver,String msg) throws IncorrectMessageFormatException {
         Message message = new Message(sender,receiver, msg);
         String json;
         try {

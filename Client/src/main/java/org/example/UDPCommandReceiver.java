@@ -61,7 +61,7 @@ public class UDPCommandReceiver {
                 System.out.println(message.sender + " trying to connect");
                 Socket clientSocket = socketHandler.acceptNewClient();
                 socketHandler.addNewConnection(clientSocket,message.sender);
-                socketHandler.addNewIp(ip,message.sender);
+                socketHandler.addNewIp(message.sender, ip);
                 System.out.println(message.sender + " acknowledged connection");
                 pendingUsers.remove(message.sender);
                 connectedUsers.add(message.sender);
