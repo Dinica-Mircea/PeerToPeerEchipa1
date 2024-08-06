@@ -12,7 +12,7 @@ public class SocketHandler {
     private final Map<String,String> nicknameIpPair;
 
     public SocketHandler() throws IOException {
-        serverSocket=new ServerSocket();
+        serverSocket=new ServerSocket(CommunicationProperties.PORT);
         nicknameSocketsPair=new ConcurrentHashMap<>();
         nicknameIpPair=new ConcurrentHashMap<>();
     }
@@ -29,5 +29,17 @@ public class SocketHandler {
 
     public String getIp(String nickname) {
         return nicknameIpPair.get(nickname);
+    }
+
+    public void addNewIp(String sender, String ip) {
+        synchronized (nicknameIpPair){
+            nicknameIpPair.put(sender, ip);
+        }
+    }
+
+    public Socket getSocket(String nickname) {
+        synchronized (nicknameSocketsPair){
+            return nicknameSocketsPair.get(nickname);
+        }
     }
 }

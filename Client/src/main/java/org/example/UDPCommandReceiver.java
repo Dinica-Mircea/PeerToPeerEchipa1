@@ -40,9 +40,10 @@ public class UDPCommandReceiver {
 
 
     private void handleCommands(Message message, String ip) {
-        System.out.println("From " + ip.toString());
+        System.out.println("From " + ip);
         if (message.message.equals("!hello " + CommunicationProperties.MY_NICKNAME)) {
             pendingUsers.add(message.sender);
+            socketHandler.addNewIp(message.sender,ip);
 //            try {
 //                Socket clientSocket = new Socket(ip, CommunicationProperties.PORT);
 //                TCPChatReceiver tcpChatReceiver = new TCPChatReceiver(clientSocket);
