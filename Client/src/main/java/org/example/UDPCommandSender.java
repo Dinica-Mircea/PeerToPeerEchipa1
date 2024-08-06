@@ -6,11 +6,11 @@ import java.net.DatagramSocket;
 import java.net.SocketException;
 import java.net.UnknownHostException;
 
-public class MessageSender {
+public class UDPCommandSender {
     private final CommunicationConverter communicationConverter = new CommunicationConverter();
     private final DatagramSocket socket;
 
-    public MessageSender() throws SocketException, UnknownHostException {
+    public UDPCommandSender() throws SocketException, UnknownHostException {
         socket = new DatagramSocket();
     }
 

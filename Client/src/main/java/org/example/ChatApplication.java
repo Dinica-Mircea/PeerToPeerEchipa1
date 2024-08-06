@@ -7,8 +7,8 @@ import java.util.Scanner;
 public class ChatApplication {
     public static void runServer() {
         try {
-            MessageReceiver messageReceiver = new MessageReceiver();
-            messageReceiver.run();
+            UDPCommandReceiver UDPCommandReceiver = new UDPCommandReceiver();
+            UDPCommandReceiver.run();
         } catch (SocketException e) {
             System.out.println(e.getMessage());
         }
@@ -16,16 +16,21 @@ public class ChatApplication {
 
     public static void runClient() {
         try {
-            MessageSender echoClient = new MessageSender();
+            UDPCommandSender echoClient = new UDPCommandSender();
             while (true) {
                 Scanner scanner = new Scanner(System.in);
                 String message = scanner.nextLine();
+
                 if (Objects.equals(message, "!stop")) {
                     echoClient.sendEcho(message);
                     echoClient.close();
                     break;
                 } else {
-                    echoClient.sendEcho(message);
+
+                    if (message.startsWith("!")) {
+                        echoClient.sendEcho(message);
+                    }
+
                 }
             }
         } catch (Exception e) {

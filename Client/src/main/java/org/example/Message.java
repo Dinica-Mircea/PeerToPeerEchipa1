@@ -3,17 +3,31 @@ package org.example;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class Message {
-    @JsonProperty("nickname")
-    public String nickname;
+    @JsonProperty("sender")
+    public String sender;
+    @JsonProperty("receiver")
+    public String receiver;
     @JsonProperty("message")
     public String message;
+    @JsonProperty("group")
+    public String group;
 
     public Message() {
     }
 
-    public Message(String nickname, String message) {
-        this.nickname = nickname;
+    public Message(String sender, String message) {
+        this.sender = sender;
         this.message = message.trim();
+    }
+
+    public Message(String sender, String receiver, String message) {
+        this.sender = sender;
+        this.receiver = receiver;
+        this.message = message;
+    }
+
+    public void setGroup(String group) {
+        this.group = group;
     }
 
     public String getMessage() {
@@ -23,7 +37,7 @@ public class Message {
     @Override
     public String toString() {
         return "Message{" +
-                "nickname='" + nickname + '\'' +
+                "nickname='" + sender + '\'' +
                 ", message='" + message + '\'' +
                 '}';
     }
