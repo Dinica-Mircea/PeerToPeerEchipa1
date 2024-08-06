@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.net.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 public class UDPCommandReceiver {
     private final DatagramSocket socket;
@@ -41,7 +42,7 @@ public class UDPCommandReceiver {
 
     private void handleCommands(Message message, String ip) {
         System.out.println("From " + ip);
-        if (message.message.equals("!hello " + CommunicationProperties.MY_NICKNAME)) {
+        if (message.message.equals("!hello") && Objects.equals(message.receiver, CommunicationProperties.MY_NICKNAME)) {
             pendingUsers.add(message.sender);
             socketHandler.addNewIp(message.sender,ip);
 //            try {
@@ -56,7 +57,7 @@ public class UDPCommandReceiver {
             return;
         }
 
-        if (message.message.equals("!ack " + CommunicationProperties.MY_NICKNAME)) {
+        if (message.message.equals("!ack") && Objects.equals(message.receiver, CommunicationProperties.MY_NICKNAME)) {
             try {
                 System.out.println(message.sender + " trying to connect");
                 Socket clientSocket = socketHandler.acceptNewClient();
@@ -73,7 +74,7 @@ public class UDPCommandReceiver {
             return;
         }
 
-        if (message.message.equals("!bye " + CommunicationProperties.MY_NICKNAME) && connectedUsers.contains(message.sender)) {
+        if (message.message.equals("!bye") && connectedUsers.contains(message.sender) && Objects.equals(message.receiver, CommunicationProperties.MY_NICKNAME)) {
             connectedUsers.remove(message.sender);
             System.out.println(message.sender + " disconnected");
             return;

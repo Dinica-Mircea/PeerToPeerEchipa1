@@ -14,8 +14,8 @@ public class CommunicationConverter {
         mapper = new ObjectMapper();
     }
 
-    DatagramPacket fromMessageToPacket(String msg, String IP, Integer PORT) throws UnknownHostException, IncorrectMessageFormatException {
-        Message message = new Message(CommunicationProperties.MY_NICKNAME, msg);
+    DatagramPacket fromMessageToPacket(String msg,String receiver, String IP, Integer PORT) throws UnknownHostException, IncorrectMessageFormatException {
+        Message message = new Message(CommunicationProperties.MY_NICKNAME,receiver, msg);
         String json;
         try {
             json = mapper.writeValueAsString(message);

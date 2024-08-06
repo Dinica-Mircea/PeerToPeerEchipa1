@@ -24,7 +24,7 @@ public class UDPCommandSender {
             Socket clientSocket;
             try {
                 System.out.println(nickname + "trying to connect");
-                DatagramPacket packet = communicationConverter.fromMessageToPacket(msg.trim(), CommunicationProperties.SERVER_IP, CommunicationProperties.PORT);
+                DatagramPacket packet = communicationConverter.fromMessageToPacket(msg.trim(),nickname, CommunicationProperties.SERVER_IP, CommunicationProperties.PORT);
                 socket.send(packet);
                 clientSocket = new Socket(socketHandler.getIp(nickname), CommunicationProperties.PORT);
                 socketHandler.addNewConnection(clientSocket, nickname);
@@ -36,7 +36,10 @@ public class UDPCommandSender {
             }
 
         } else if (msg.startsWith("!")) {
-            DatagramPacket packet = communicationConverter.fromMessageToPacket(msg.trim(), CommunicationProperties.SERVER_IP, CommunicationProperties.PORT);
+            String[] split =msg.trim().split(" ");
+            String nickname = split[1];
+            String command=split[0];
+            DatagramPacket packet = communicationConverter.fromMessageToPacket(command, nickname, CommunicationProperties.SERVER_IP, CommunicationProperties.PORT);
             socket.send(packet);
         } else if (msg.startsWith("#")) {
             String nextReceiver = msg.replace("#", "");
