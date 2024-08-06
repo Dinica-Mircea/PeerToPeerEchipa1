@@ -56,7 +56,7 @@ public class UDPCommandReceiver {
             return;
         }
 
-        if (message.message.equals("!ack " + CommunicationProperties.MY_NICKNAME) && pendingUsers.contains(message.sender)) {
+        if (message.message.equals("!ack " + CommunicationProperties.MY_NICKNAME)) {
             try {
                 System.out.println(message.sender + " trying to connect");
                 Socket clientSocket = socketHandler.acceptNewClient();

@@ -20,6 +20,7 @@ public class TCPChatReceiver extends Thread {
     @Override
     public void run() {
         try {
+
             InputStream inputStream = clientSocket.getInputStream();
             while (true) {
                 if(inputStream.read(buf)>0){

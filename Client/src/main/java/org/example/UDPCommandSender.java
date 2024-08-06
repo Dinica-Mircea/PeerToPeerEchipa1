@@ -29,6 +29,8 @@ public class UDPCommandSender {
                 clientSocket = new Socket(socketHandler.getIp(nickname), CommunicationProperties.PORT);
                 socketHandler.addNewConnection(clientSocket, nickname);
                 System.out.println(nickname + " connected");
+                TCPChatReceiver tcpChatReceiver = new TCPChatReceiver(clientSocket);
+                tcpChatReceiver.start();
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
@@ -40,6 +42,7 @@ public class UDPCommandSender {
             String nextReceiver = msg.replace("#", "");
             if (socketHandler.getIp(nextReceiver) != null) {
                 currentReceiver = nextReceiver;
+                System.out.println("current receiver updated: " + currentReceiver);
             } else{
                 System.out.println(nextReceiver + " not connected");
             }
