@@ -1,5 +1,6 @@
 package org.example;
 
+import java.io.IOException;
 import java.net.SocketException;
 import java.util.Objects;
 import java.util.Scanner;
@@ -14,9 +15,15 @@ public class Main {
 
     public static void main(String[] args) throws InterruptedException {
         ExecutorService executorService = Executors.newFixedThreadPool(3);
-        executorService.submit(ChatApplication::runServer);
-        sleep(10);
-        executorService.submit(ChatApplication::runClient);
-        executorService.shutdown();
+        try {
+            ChatApplication chatApplication=new ChatApplication();
+            executorService.submit(chatApplication::runServer);
+            sleep(10);
+            executorService.submit(chatApplication::runClient);
+            executorService.shutdown();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
     }
 }

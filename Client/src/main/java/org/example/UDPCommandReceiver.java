@@ -12,9 +12,11 @@ public class UDPCommandReceiver {
     List<String> connectedUsers = new ArrayList<>();
     List<String> pendingUsers = new ArrayList<>();
     CommunicationConverter communicationConverter = new CommunicationConverter();
+    SocketHandler socketHandler;
 
-    public UDPCommandReceiver() throws SocketException {
+    public UDPCommandReceiver(SocketHandler socketHandler) throws SocketException {
         socket = new DatagramSocket(CommunicationProperties.PORT);
+        this.socketHandler=socketHandler;
     }
 
     public void run() {
@@ -53,11 +55,15 @@ public class UDPCommandReceiver {
         }
 
         if (message.message.equals("!ack " + CommunicationProperties.MY_NICKNAME) && pendingUsers.contains(message.sender)) {
-            pendingUsers.remove(message.sender);
-            connectedUsers.add(message.sender);
-            System.out.println(message.sender + " acknowledged connection");
             try {
+                System.out.println(message.sender + " trying to connect");
+
                 Socket clientSocket = new Socket(ip, CommunicationProperties.PORT);
+                socketHandler.addNewConnection(clientSocket,message.sender);
+
+                System.out.println(message.sender + " acknowledged connection");
+                pendingUsers.remove(message.sender);
+                connectedUsers.add(message.sender);
                 TCPChatReceiver tcpChatReceiver = new TCPChatReceiver(clientSocket);
                 tcpChatReceiver.start();
             } catch (IOException e) {
