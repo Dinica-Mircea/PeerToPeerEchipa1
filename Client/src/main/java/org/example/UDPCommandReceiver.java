@@ -27,7 +27,7 @@ public class UDPCommandReceiver {
                 socket.receive(packet);
                 Message message = communicationConverter.fromPacketToMessage(packet);
                 if (message.message.startsWith("!")) {
-                    handleCommands(message, packet.getAddress());
+                    handleCommands(message, packet.getAddress().getHostAddress());
                 } else if (connectedUsers.contains(message.sender)) {
                     System.out.println(message);
                 }
@@ -39,7 +39,8 @@ public class UDPCommandReceiver {
     }
 
 
-    private void handleCommands(Message message, InetAddress ip) {
+    private void handleCommands(Message message, String ip) {
+        System.out.println("From " + ip.toString());
         if (message.message.equals("!hello " + CommunicationProperties.MY_NICKNAME)) {
             pendingUsers.add(message.sender);
 //            try {
@@ -57,7 +58,7 @@ public class UDPCommandReceiver {
         if (message.message.equals("!ack " + CommunicationProperties.MY_NICKNAME) && pendingUsers.contains(message.sender)) {
             try {
                 System.out.println(message.sender + " trying to connect");
-                Socket clientSocket = new Socket(ip, CommunicationProperties.PORT);
+                Socket clientSocket = socketHandler.acceptNewClient();
                 socketHandler.addNewConnection(clientSocket,message.sender);
                 System.out.println(message.sender + " acknowledged connection");
                 pendingUsers.remove(message.sender);
@@ -65,7 +66,7 @@ public class UDPCommandReceiver {
                 TCPChatReceiver tcpChatReceiver = new TCPChatReceiver(clientSocket);
                 tcpChatReceiver.start();
             } catch (IOException e) {
-                throw new RuntimeException();
+                throw new RuntimeException(e);
             }
             return;
         }
