@@ -40,7 +40,7 @@ public class CommunicationConverter {
 
     public Message fromPacketToMessage(DatagramPacket packet) throws JsonProcessingException {
         String received = new String(packet.getData(), 0, packet.getLength());
-        System.out.println("received: " + received);
+        System.out.println("received: " + received.trim());
         return mapper.readValue(received, Message.class);
     }
 }
