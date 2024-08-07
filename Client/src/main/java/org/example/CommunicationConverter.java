@@ -26,15 +26,14 @@ public class CommunicationConverter {
         return new DatagramPacket(buffer, buffer.length, InetAddress.getByName(IP), PORT);
     }
 
-    String fromMessageToJson(String sender,String receiver,String msg) throws IncorrectMessageFormatException {
-        Message message = new Message(sender,receiver, msg);
+    String fromMessageToJson(String receiver, String msg) throws IncorrectMessageFormatException {
+        Message message = new Message(CommunicationProperties.MY_NICKNAME,receiver, msg);
         String json;
         try {
             json = mapper.writeValueAsString(message);
         } catch (JsonProcessingException e) {
             throw new IncorrectMessageFormatException(msg);
         }
-       // byte[] buffer = json.getBytes();
         return json;
     }
 

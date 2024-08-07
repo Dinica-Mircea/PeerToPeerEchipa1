@@ -55,7 +55,7 @@ public class UDPCommandSender {
                 System.out.println("No existing ip for " + currentReceiver);
             } else {
                 OutputStream out = socket.getOutputStream();
-                String json=communicationConverter.fromMessageToJson(CommunicationProperties.MY_NICKNAME, currentReceiver, msg);
+                String json=communicationConverter.fromMessageToJson(currentReceiver, msg);
                 out.write(json.getBytes());
             }
         }
