@@ -6,11 +6,9 @@ import utils.CommunicationProperties;
 
 import java.io.IOException;
 import java.io.OutputStream;
-import java.net.DatagramPacket;
-import java.net.DatagramSocket;
-import java.net.Socket;
-import java.net.SocketException;
+import java.net.*;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 public class CommandSender {
@@ -36,7 +34,7 @@ public class CommandSender {
     }
 
     private void sendDirectMessage(String msg) throws IOException {
-        Socket socket = socketHandler.getSocket(currentReceiver);
+        Socket socket = socketHandler.getSocketByNickname(currentReceiver);
         if (socket == null) {
             System.out.println("No existing ip for " + currentReceiver);
         } else {
@@ -65,7 +63,7 @@ public class CommandSender {
             clientSocket = new Socket(socketHandler.getIp(nickname), CommunicationProperties.PORT);
             socketHandler.addNewSocketIp(clientSocket, socketHandler.getIp(nickname));
             System.out.println(nickname + " connected");
-            TCPChatReceiver tcpChatReceiver = new TCPChatReceiver(clientSocket);
+            TCPChatReceiver tcpChatReceiver = new TCPChatReceiver(clientSocket, groupHandler);
             tcpChatReceiver.start();
         } catch (IOException e) {
             System.out.println(e.getMessage());
@@ -82,7 +80,14 @@ public class CommandSender {
                 return;
             }
             case "!group": {
-                groupHandler.addGroup(nickname, (new ArrayList<>()));
+                List<String> groupIps = new ArrayList<>();
+                try {
+                    String myIp = InetAddress.getLocalHost().getHostAddress().trim();
+                    groupIps.add(myIp);
+                    groupHandler.addGroup(nickname, groupIps);
+                } catch (UnknownHostException e) {
+                    System.out.println("Can't get my ip.");
+                }
                 return;
             }
             case "!invite": {
@@ -112,8 +117,6 @@ public class CommandSender {
             System.out.println(e.getMessage());
         }
     }
-
-
 
     public void close() {
         udpSocket.close();

@@ -6,10 +6,8 @@ import utils.CommunicationProperties;
 import domain.Message;
 
 import java.io.IOException;
-import java.net.DatagramPacket;
-import java.net.DatagramSocket;
-import java.net.Socket;
-import java.net.SocketException;
+import java.io.OutputStream;
+import java.net.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -25,7 +23,7 @@ public class UDPCommandReceiver {
 
     public UDPCommandReceiver(SocketHandler socketHandler,GroupHandler groupHandler) throws SocketException {
         this.socket = new DatagramSocket(CommunicationProperties.PORT);
-        this.directMessages = new DirectMessages(10);
+        this.directMessages = new DirectMessages(10,groupHandler);
         this.socketHandler = socketHandler;
         this.groupHandler=groupHandler;
     }
@@ -80,11 +78,34 @@ public class UDPCommandReceiver {
         if(groupHandler.removeNicknamesInPending(message.group,message.sender)){
             socketHandler.addNewIpNickname(ip,message.sender);
             groupHandler.addNewMember(message.group, ip);
+            try {
+                socketHandler.acceptNewClient(message.sender,ip);
+                List<String> groupIps=groupHandler.getAllMembers(message.group);
+                String myIp = InetAddress.getLocalHost().getHostAddress().trim();
+                for(String memberIp:groupIps){
+                    if (!memberIp.equals(myIp)){
+                        sendUpdate(memberIp, groupIps,message.group);
+                    }
+                }
+            } catch (IOException e) {
+                System.out.println(e.getMessage());
+            }
+        }
+    }
+
+    private void sendUpdate(String memberIp, List<String> groupIps,String group) throws IOException {
+        Socket socket = socketHandler.getSocketByIp(memberIp);
+        if (socket == null) {
+            System.out.println("No existing socket for " + memberIp);
+        } else {
+            OutputStream out = socket.getOutputStream();
+            String json = CommunicationConverter.fromUpdateMessageToJson(group,groupIps);
+            out.write(json.getBytes());
         }
     }
 
     private void handleByeMethod(Message message) {
-        Socket socket=socketHandler.getSocket(message.sender);
+        Socket socket=socketHandler.getSocketByNickname(message.sender);
         if(socket!=null){
             socketHandler.remove(message.sender);
             System.out.println(message.sender + " disconnected");

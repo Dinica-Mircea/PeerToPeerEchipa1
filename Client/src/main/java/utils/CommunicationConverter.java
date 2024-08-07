@@ -8,6 +8,7 @@ import domain.Message;
 import java.net.DatagramPacket;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.util.List;
 
 public class CommunicationConverter {
     private static final ObjectMapper mapper = new ObjectMapper();
@@ -42,6 +43,17 @@ public class CommunicationConverter {
             json = mapper.writeValueAsString(message);
         } catch (JsonProcessingException e) {
             throw new IncorrectMessageFormatException(msg);
+        }
+        return json;
+    }
+
+    public static String fromUpdateMessageToJson(String group, List<String> groupIps) throws IncorrectMessageFormatException {
+        Message message = new Message(CommunicationProperties.MY_NICKNAME,"", "!update", group, groupIps);
+        String json;
+        try {
+            json = mapper.writeValueAsString(message);
+        } catch (JsonProcessingException e) {
+            throw new IncorrectMessageFormatException(e.getMessage());
         }
         return json;
     }

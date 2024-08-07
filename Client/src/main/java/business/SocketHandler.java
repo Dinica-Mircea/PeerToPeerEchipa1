@@ -5,6 +5,7 @@ import utils.CommunicationProperties;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -45,11 +46,23 @@ public class SocketHandler {
         }
     }
 
-    public Socket getSocket(String nickname) {
+    public Socket getSocketByNickname(String nickname) {
         String ip = nicknameIpPair.get(nickname);
         synchronized (ipSocketsPair) {
-            return ipSocketsPair.get(ip);
+            if (ipSocketsPair.containsKey(ip)) {
+                return ipSocketsPair.get(ip);
+            }
         }
+        return null;
+    }
+
+    public Socket getSocketByIp(String ip) {
+        synchronized (ipSocketsPair) {
+            if (ipSocketsPair.containsKey(ip)) {
+                return ipSocketsPair.get(ip);
+            }
+        }
+        return null;
     }
 
     public void remove(String nickname) {
@@ -59,5 +72,10 @@ public class SocketHandler {
             ipSocketsPair.remove(ip);
             nicknameIpPair.remove(nickname);
 //        }
+    }
+
+    public List<Socket> getAllSockets(List<String> groupIps) {
+        return groupIps.stream().map(this::getSocketByIp)
+                .toList();
     }
 }

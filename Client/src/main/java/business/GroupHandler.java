@@ -39,4 +39,12 @@ public class GroupHandler {
             System.out.println(group + " doesn't exist");
         }
     }
+
+    public List<String> getAllMembers(String group) {
+        return groups.get(group);
+    }
+
+    public boolean existsGroup(String group) {
+        return groups.containsKey(group);
+    }
 }

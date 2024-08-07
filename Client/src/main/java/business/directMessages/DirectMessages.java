@@ -1,18 +1,22 @@
 package business.directMessages;
 
+import business.GroupHandler;
+
 import java.net.Socket;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 public class DirectMessages {
     private final ExecutorService executorService;
+    private final GroupHandler groupHandler;
 
-    public DirectMessages(Integer numberOfThreads) {
+    public DirectMessages(Integer numberOfThreads, GroupHandler groupHandler) {
         this.executorService = Executors.newFixedThreadPool(numberOfThreads);
+        this.groupHandler = groupHandler;
     }
 
     public void startNewChat(Socket socket) {
-        TCPChatReceiver tcpChatReceiver = new TCPChatReceiver(socket);
+        TCPChatReceiver tcpChatReceiver = new TCPChatReceiver(socket,groupHandler);
         executorService.submit(tcpChatReceiver);
     }
 

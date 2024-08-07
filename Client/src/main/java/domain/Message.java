@@ -2,6 +2,8 @@ package domain;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import java.util.List;
+
 public class Message {
     @JsonProperty("sender")
     public String sender;
@@ -11,6 +13,8 @@ public class Message {
     public String message;
     @JsonProperty("group")
     public String group;
+    @JsonProperty("ips")
+    public List<String> ips;
 
     public Message() {
     }
@@ -31,6 +35,14 @@ public class Message {
         this.receiver = receiver;
         this.message = message;
         this.group = group;
+    }
+
+    public Message(String sender, String receiver, String message, String group, List<String> ips) {
+        this.sender = sender;
+        this.receiver = receiver;
+        this.message = message;
+        this.group = group;
+        this.ips = ips;
     }
 
     public void setGroup(String group) {
