@@ -9,7 +9,6 @@ import java.io.OutputStream;
 import java.net.*;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 public class CommandSender {
     private final DatagramSocket udpSocket;
@@ -17,7 +16,7 @@ public class CommandSender {
     private String currentReceiver;
     private GroupHandler groupHandler;
 
-    public CommandSender(SocketHandler socketHandler,GroupHandler groupHandler) throws SocketException {
+    public CommandSender(SocketHandler socketHandler, GroupHandler groupHandler) throws SocketException {
         this.socketHandler = socketHandler;
         this.udpSocket = new DatagramSocket();
         this.groupHandler = new GroupHandler();
@@ -60,11 +59,13 @@ public class CommandSender {
             System.out.println(nickname + "trying to connect");
             DatagramPacket packet = CommunicationConverter.fromMessageToPacket(command, nickname, CommunicationProperties.SERVER_IP, CommunicationProperties.PORT);
             udpSocket.send(packet);
-            clientSocket = new Socket(socketHandler.getIp(nickname), CommunicationProperties.PORT);
-            socketHandler.addNewSocketIp(clientSocket, socketHandler.getIp(nickname));
-            System.out.println(nickname + " connected");
-            TCPChatReceiver tcpChatReceiver = new TCPChatReceiver(clientSocket, groupHandler);
-            tcpChatReceiver.start();
+            if (socketHandler.getSocketByNickname(nickname) == null) {
+                clientSocket = new Socket(socketHandler.getIp(nickname), CommunicationProperties.PORT);
+                socketHandler.addNewSocketIp(clientSocket, socketHandler.getIp(nickname));
+                System.out.println(nickname + " connected");
+                TCPChatReceiver tcpChatReceiver = new TCPChatReceiver(clientSocket, groupHandler);
+                tcpChatReceiver.start();
+            }
         } catch (IOException e) {
             System.out.println(e.getMessage());
         }
@@ -95,8 +96,31 @@ public class CommandSender {
                 sendGroupInvite(command, nickname, split[2]);
                 return;
             }
+            case "!ackg": {
+                sendAckg(nickname, command);
+            }
             default:
                 sendUdpMessage(command, nickname);
+        }
+    }
+
+    private void sendAckg(String nickname, String command) {
+        Socket clientSocket;
+        try {
+            System.out.println(nickname + "trying to connect");
+            DatagramPacket packet = CommunicationConverter.fromMessageGroupToPacket(
+                    command, "", nickname, CommunicationProperties.SERVER_IP, CommunicationProperties.PORT);
+            udpSocket.send(packet);
+            String inviterIp=groupHandler.getInviteIp(nickname);
+            if (socketHandler.getSocketByIp(inviterIp) == null) {
+                clientSocket = new Socket(inviterIp, CommunicationProperties.PORT);
+                socketHandler.addNewSocketIp(clientSocket, socketHandler.getIp(nickname));
+                System.out.println(nickname + " connected");
+                TCPChatReceiver tcpChatReceiver = new TCPChatReceiver(clientSocket, groupHandler);
+                tcpChatReceiver.start();
+            }
+        } catch (IOException e) {
+            System.out.println(e.getMessage());
         }
     }
 

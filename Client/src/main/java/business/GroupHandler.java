@@ -8,6 +8,7 @@ import java.util.concurrent.ConcurrentHashMap;
 public class GroupHandler {
     private Map<String, List<String>> groups = new ConcurrentHashMap<>();
     private Map<String, List<String>> pendingNicknamesForGroup = new ConcurrentHashMap<>();
+    private Map<String,String> invitesGroupIpPair = new ConcurrentHashMap<>();
 
     public void addGroup(String groupName, List<String> members) {
         groups.put(groupName, members);
@@ -46,5 +47,13 @@ public class GroupHandler {
 
     public boolean existsGroup(String group) {
         return groups.containsKey(group);
+    }
+
+    public void addNewInvite(String group, String ip) {
+        invitesGroupIpPair.put(group,ip);
+    }
+
+    public String getInviteIp(String nickname) {
+        return invitesGroupIpPair.get(nickname);
     }
 }
