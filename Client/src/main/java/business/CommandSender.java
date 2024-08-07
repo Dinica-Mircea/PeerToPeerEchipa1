@@ -10,16 +10,19 @@ import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.Socket;
 import java.net.SocketException;
+import java.util.ArrayList;
 import java.util.Objects;
 
 public class CommandSender {
     private final DatagramSocket udpSocket;
     private final SocketHandler socketHandler;
     private String currentReceiver;
+    private GroupHandler groupHandler;
 
-    public CommandSender(SocketHandler socketHandler) throws SocketException {
+    public CommandSender(SocketHandler socketHandler,GroupHandler groupHandler) throws SocketException {
         this.socketHandler = socketHandler;
         this.udpSocket = new DatagramSocket();
+        this.groupHandler = new GroupHandler();
     }
 
     public void sendEcho(String msg) throws IOException {
@@ -73,10 +76,31 @@ public class CommandSender {
         String[] split = msg.trim().split(" ");
         String nickname = split[1];
         String command = split[0];
-        if (Objects.equals(command, "!ack")) {
-            sendAck(nickname, command);
-        } else {
-            sendUdpMessage(command, nickname);
+        switch (command) {
+            case "!ack": {
+                sendAck(nickname, command);
+                return;
+            }
+            case "!group": {
+                groupHandler.addGroup(nickname, (new ArrayList<>()));
+                return;
+            }
+            case "!invite": {
+                groupHandler.addNicknameInPendingGroup(nickname, socketHandler.getIp(split[2]));
+                sendGroupInvite(command, nickname, split[2]);
+                return;
+            }
+            default:
+                sendUdpMessage(command, nickname);
+        }
+    }
+
+    private void sendGroupInvite(String command, String groupNickname, String receiver) {
+        try {
+            DatagramPacket packet = CommunicationConverter.fromMessageGroupToPacket(command, receiver, groupNickname, CommunicationProperties.SERVER_IP, CommunicationProperties.PORT);
+            udpSocket.send(packet);
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
         }
     }
 
@@ -88,6 +112,8 @@ public class CommandSender {
             System.out.println(e.getMessage());
         }
     }
+
+
 
     public void close() {
         udpSocket.close();

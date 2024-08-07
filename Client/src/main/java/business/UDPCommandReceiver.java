@@ -21,11 +21,13 @@ public class UDPCommandReceiver {
     List<String> pendingUsers = new ArrayList<>();
     SocketHandler socketHandler;
     DirectMessages directMessages;
+    GroupHandler groupHandler;
 
-    public UDPCommandReceiver(SocketHandler socketHandler) throws SocketException {
+    public UDPCommandReceiver(SocketHandler socketHandler,GroupHandler groupHandler) throws SocketException {
         this.socket = new DatagramSocket(CommunicationProperties.PORT);
         this.directMessages = new DirectMessages(10);
         this.socketHandler = socketHandler;
+        this.groupHandler=groupHandler;
     }
 
     public void run() {
@@ -62,11 +64,22 @@ public class UDPCommandReceiver {
                     handleByeMethod(message);
                     return;
                 }
+                case "!ackg":{
+                    handleAckgCommand(message,ip);
+                    return;
+                }
                 case "!stop":{
                     System.out.println(message);
                     stillRunning = false;
                 }
             }
+        }
+    }
+
+    private void handleAckgCommand(Message message,String ip) {
+        if(groupHandler.removeNicknamesInPending(message.group,message.sender)){
+            socketHandler.addNewIpNickname(ip,message.sender);
+            groupHandler.addNewMember(message.group, ip);
         }
     }
 

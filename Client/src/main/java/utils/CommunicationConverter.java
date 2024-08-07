@@ -29,6 +29,23 @@ public class CommunicationConverter {
         return json;
     }
 
+    public static DatagramPacket fromMessageGroupToPacket(String msg,String receiver, String group, String IP, Integer PORT) throws UnknownHostException, IncorrectMessageFormatException {
+        String json = fromMessageGroupToJson(receiver, msg, group);
+        byte[] buffer = json.getBytes();
+        return new DatagramPacket(buffer, buffer.length, InetAddress.getByName(IP), PORT);
+    }
+
+    public static String fromMessageGroupToJson(String receiver, String msg, String group) throws IncorrectMessageFormatException {
+        Message message = new Message(CommunicationProperties.MY_NICKNAME,receiver, msg, group);
+        String json;
+        try {
+            json = mapper.writeValueAsString(message);
+        } catch (JsonProcessingException e) {
+            throw new IncorrectMessageFormatException(msg);
+        }
+        return json;
+    }
+
     public static Message fromPacketToMessage(DatagramPacket packet) throws JsonProcessingException {
         String received = new String(packet.getData(), 0, packet.getLength());
         System.out.println("received: " + received.trim());

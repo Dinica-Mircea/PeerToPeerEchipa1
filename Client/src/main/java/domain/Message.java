@@ -26,6 +26,13 @@ public class Message {
         this.message = message;
     }
 
+    public Message(String sender, String receiver, String message, String group) {
+        this.sender = sender;
+        this.receiver = receiver;
+        this.message = message;
+        this.group = group;
+    }
+
     public void setGroup(String group) {
         this.group = group;
     }

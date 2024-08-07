@@ -5,15 +5,17 @@ import java.util.Objects;
 import java.util.Scanner;
 
 public class ChatApplication {
-    private static SocketHandler socketHandler;
+    private final SocketHandler socketHandler;
+    private final GroupHandler groupHandler;
 
     public ChatApplication() throws IOException {
         socketHandler = new SocketHandler();
+        groupHandler = new GroupHandler();
     }
 
     public void runServer() {
         try {
-            UDPCommandReceiver UDPCommandReceiver = new UDPCommandReceiver(socketHandler);
+            UDPCommandReceiver UDPCommandReceiver = new UDPCommandReceiver(socketHandler,groupHandler);
             UDPCommandReceiver.run();
         } catch (Exception e) {
             System.out.println(e.getMessage());
@@ -22,7 +24,7 @@ public class ChatApplication {
 
     public void runClient() {
         try {
-            CommandSender echoClient = new CommandSender(socketHandler);
+            CommandSender echoClient = new CommandSender(socketHandler,groupHandler);
             while (true) {
                 Scanner scanner = new Scanner(System.in);
                 String message = scanner.nextLine();
