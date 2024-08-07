@@ -1,9 +1,6 @@
-package org.example;
+import business.ChatApplication;
 
 import java.io.IOException;
-import java.net.SocketException;
-import java.util.Objects;
-import java.util.Scanner;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 

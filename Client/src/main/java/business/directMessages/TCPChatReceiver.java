@@ -1,9 +1,11 @@
-package org.example;
+package business.directMessages;
+
+import utils.CommunicationConverter;
+import domain.Message;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.net.DatagramPacket;
 import java.net.Socket;
 

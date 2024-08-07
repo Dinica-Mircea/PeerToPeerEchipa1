@@ -1,8 +1,6 @@
-package org.example;
+package business;
 
 import java.io.IOException;
-import java.net.Socket;
-import java.net.SocketException;
 import java.util.Objects;
 import java.util.Scanner;
 
@@ -10,7 +8,7 @@ public class ChatApplication {
     private static SocketHandler socketHandler;
 
     public ChatApplication() throws IOException {
-        socketHandler=new SocketHandler();
+        socketHandler = new SocketHandler();
     }
 
     public void runServer() {
@@ -24,13 +22,11 @@ public class ChatApplication {
 
     public void runClient() {
         try {
-            UDPCommandSender echoClient = new UDPCommandSender(socketHandler);
+            CommandSender echoClient = new CommandSender(socketHandler);
             while (true) {
                 Scanner scanner = new Scanner(System.in);
                 String message = scanner.nextLine();
-                //if (message.startsWith("!")) {
-                    echoClient.sendEcho(message);
-                //}
+                echoClient.sendEcho(message);
                 if (Objects.equals(message, "!stop")) {
                     echoClient.close();
                     break;

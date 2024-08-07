@@ -1,32 +1,24 @@
-package org.example;
+package utils;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import exceptions.IncorrectMessageFormatException;
+import domain.Message;
 
 import java.net.DatagramPacket;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 
 public class CommunicationConverter {
-    ObjectMapper mapper;
+    private static final ObjectMapper mapper = new ObjectMapper();
 
-    public CommunicationConverter() {
-        mapper = new ObjectMapper();
-    }
-
-    DatagramPacket fromMessageToPacket(String msg,String receiver, String IP, Integer PORT) throws UnknownHostException, IncorrectMessageFormatException {
-        Message message = new Message(CommunicationProperties.MY_NICKNAME,receiver, msg);
-        String json;
-        try {
-            json = mapper.writeValueAsString(message);
-        } catch (JsonProcessingException e) {
-            throw new IncorrectMessageFormatException(msg);
-        }
+    public static DatagramPacket fromMessageToPacket(String msg,String receiver, String IP, Integer PORT) throws UnknownHostException, IncorrectMessageFormatException {
+        String json = fromMessageToJson(receiver, msg);
         byte[] buffer = json.getBytes();
         return new DatagramPacket(buffer, buffer.length, InetAddress.getByName(IP), PORT);
     }
 
-    String fromMessageToJson(String receiver, String msg) throws IncorrectMessageFormatException {
+    public static String fromMessageToJson(String receiver, String msg) throws IncorrectMessageFormatException {
         Message message = new Message(CommunicationProperties.MY_NICKNAME,receiver, msg);
         String json;
         try {
@@ -37,7 +29,7 @@ public class CommunicationConverter {
         return json;
     }
 
-    public Message fromPacketToMessage(DatagramPacket packet) throws JsonProcessingException {
+    public static Message fromPacketToMessage(DatagramPacket packet) throws JsonProcessingException {
         String received = new String(packet.getData(), 0, packet.getLength());
         System.out.println("received: " + received.trim());
         return mapper.readValue(received, Message.class);

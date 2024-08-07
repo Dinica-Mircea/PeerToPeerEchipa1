@@ -1,4 +1,8 @@
-package org.example;
+package business;
+
+import business.directMessages.TCPChatReceiver;
+import utils.CommunicationConverter;
+import utils.CommunicationProperties;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -7,13 +11,12 @@ import java.net.DatagramSocket;
 import java.net.Socket;
 import java.net.SocketException;
 
-public class UDPCommandSender {
-    private final CommunicationConverter communicationConverter = new CommunicationConverter();
+public class CommandSender {
     private final DatagramSocket socket;
     private final SocketHandler socketHandler;
     private String currentReceiver;
 
-    public UDPCommandSender(SocketHandler socketHandler) throws SocketException {
+    public CommandSender(SocketHandler socketHandler) throws SocketException {
         this.socketHandler = socketHandler;
         socket = new DatagramSocket();
     }
@@ -26,7 +29,7 @@ public class UDPCommandSender {
             Socket clientSocket;
             try {
                 System.out.println(nickname + "trying to connect");
-                DatagramPacket packet = communicationConverter.fromMessageToPacket(command, nickname, CommunicationProperties.SERVER_IP, CommunicationProperties.PORT);
+                DatagramPacket packet = CommunicationConverter.fromMessageToPacket(command, nickname, CommunicationProperties.SERVER_IP, CommunicationProperties.PORT);
                 socket.send(packet);
                 clientSocket = new Socket(socketHandler.getIp(nickname), CommunicationProperties.PORT);
                 socketHandler.addNewConnection(clientSocket, nickname);
@@ -41,7 +44,7 @@ public class UDPCommandSender {
             String[] split = msg.trim().split(" ");
             String nickname = split[1];
             String command = split[0];
-            DatagramPacket packet = communicationConverter.fromMessageToPacket(command, nickname, CommunicationProperties.SERVER_IP, CommunicationProperties.PORT);
+            DatagramPacket packet = CommunicationConverter.fromMessageToPacket(command, nickname, CommunicationProperties.SERVER_IP, CommunicationProperties.PORT);
             socket.send(packet);
         } else if (msg.startsWith("#")) {
             String nextReceiver = msg.replace("#", "");
@@ -57,7 +60,7 @@ public class UDPCommandSender {
                 System.out.println("No existing ip for " + currentReceiver);
             } else {
                 OutputStream out = socket.getOutputStream();
-                String json = communicationConverter.fromMessageToJson(currentReceiver, msg);
+                String json = CommunicationConverter.fromMessageToJson(currentReceiver, msg);
                 out.write(json.getBytes());
             }
         }

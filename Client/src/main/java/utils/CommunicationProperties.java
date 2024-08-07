@@ -1,7 +1,4 @@
-package org.example;
-
-import java.io.IOException;
-import java.net.ServerSocket;
+package utils;
 
 public class CommunicationProperties {
     public static final String MY_NICKNAME = "echipa1";
