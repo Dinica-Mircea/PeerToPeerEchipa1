@@ -10,12 +10,12 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class SocketHandler {
     private final ServerSocket serverSocket;
-    private final Map<String, Socket> nicknameSocketsPair;
+    private final Map<String, Socket> ipSocketsPair;
     private final Map<String, String> nicknameIpPair;
 
     public SocketHandler() throws IOException {
         serverSocket = new ServerSocket(CommunicationProperties.PORT);
-        nicknameSocketsPair = new ConcurrentHashMap<>();
+        ipSocketsPair = new ConcurrentHashMap<>();
         nicknameIpPair = new ConcurrentHashMap<>();
     }
 
@@ -28,7 +28,7 @@ public class SocketHandler {
     }
 
     public void addNewSocketIp(Socket clientSocket, String ip) {
-        nicknameSocketsPair.put(ip, clientSocket);
+        ipSocketsPair.put(ip, clientSocket);
     }
     public void addNewSocketIpNickname(Socket clientSocket, String ip, String nickname) {
         addNewIpNickname(ip, nickname);
@@ -46,14 +46,18 @@ public class SocketHandler {
     }
 
     public Socket getSocket(String nickname) {
-        synchronized (nicknameSocketsPair) {
-            return nicknameSocketsPair.get(nickname);
+        String ip = nicknameIpPair.get(nickname);
+        synchronized (ipSocketsPair) {
+            return ipSocketsPair.get(ip);
         }
     }
 
     public void remove(String nickname) {
-        synchronized (nicknameSocketsPair) {
-            nicknameSocketsPair.remove(nickname);
-        }
+        String ip = nicknameIpPair.get(nickname);
+
+//        synchronized (ipSocketsPair) {
+            ipSocketsPair.remove(ip);
+            nicknameIpPair.remove(nickname);
+//        }
     }
 }
