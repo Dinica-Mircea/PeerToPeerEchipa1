@@ -92,8 +92,7 @@ public class UDPCommandReceiver {
 
     private void handleHelloCommand(Message message, String ip) {
         pendingUsers.add(message.sender);
-        socketHandler.addNewIp(message.sender, ip);
+        socketHandler.addNewIpNickname(ip, message.sender);
         System.out.println(message.sender + " pending connection");
     }
-
 }

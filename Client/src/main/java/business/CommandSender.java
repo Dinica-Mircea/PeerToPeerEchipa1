@@ -10,63 +10,86 @@ import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.Socket;
 import java.net.SocketException;
+import java.util.Objects;
 
 public class CommandSender {
-    private final DatagramSocket socket;
+    private final DatagramSocket udpSocket;
     private final SocketHandler socketHandler;
     private String currentReceiver;
 
     public CommandSender(SocketHandler socketHandler) throws SocketException {
         this.socketHandler = socketHandler;
-        socket = new DatagramSocket();
+        this.udpSocket = new DatagramSocket();
     }
 
     public void sendEcho(String msg) throws IOException {
-        if (msg.startsWith("!ack")) {
-            String[] split = msg.trim().split(" ");
-            String nickname = split[1];
-            String command = split[0];
-            Socket clientSocket;
-            try {
-                System.out.println(nickname + "trying to connect");
-                DatagramPacket packet = CommunicationConverter.fromMessageToPacket(command, nickname, CommunicationProperties.SERVER_IP, CommunicationProperties.PORT);
-                socket.send(packet);
-                clientSocket = new Socket(socketHandler.getIp(nickname), CommunicationProperties.PORT);
-                socketHandler.addNewConnection(clientSocket, nickname);
-                System.out.println(nickname + " connected");
-                TCPChatReceiver tcpChatReceiver = new TCPChatReceiver(clientSocket);
-                tcpChatReceiver.start();
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-
-        } else if (msg.startsWith("!")) {
-            String[] split = msg.trim().split(" ");
-            String nickname = split[1];
-            String command = split[0];
-            DatagramPacket packet = CommunicationConverter.fromMessageToPacket(command, nickname, CommunicationProperties.SERVER_IP, CommunicationProperties.PORT);
-            socket.send(packet);
+        if (msg.startsWith("!")) {
+            sendCommand(msg);
         } else if (msg.startsWith("#")) {
-            String nextReceiver = msg.replace("#", "");
-            if (socketHandler.getIp(nextReceiver) != null) {
-                currentReceiver = nextReceiver;
-                System.out.println("current receiver updated: " + currentReceiver);
-            } else {
-                System.out.println(nextReceiver + " not connected");
-            }
+            updateCurrentReceiver(msg);
         } else {
-            Socket socket = socketHandler.getSocket(currentReceiver);
-            if (socket == null) {
-                System.out.println("No existing ip for " + currentReceiver);
-            } else {
-                OutputStream out = socket.getOutputStream();
-                String json = CommunicationConverter.fromMessageToJson(currentReceiver, msg);
-                out.write(json.getBytes());
-            }
+            sendDirectMessage(msg);
+        }
+    }
+
+    private void sendDirectMessage(String msg) throws IOException {
+        Socket socket = socketHandler.getSocket(currentReceiver);
+        if (socket == null) {
+            System.out.println("No existing ip for " + currentReceiver);
+        } else {
+            OutputStream out = socket.getOutputStream();
+            String json = CommunicationConverter.fromMessageToJson(currentReceiver, msg);
+            out.write(json.getBytes());
+        }
+    }
+
+    private void updateCurrentReceiver(String msg) {
+        String nextReceiver = msg.replace("#", "");
+        if (socketHandler.getIp(nextReceiver) != null) {
+            currentReceiver = nextReceiver;
+            System.out.println("current receiver updated: " + currentReceiver);
+        } else {
+            System.out.println(nextReceiver + " not connected");
+        }
+    }
+
+    private void sendAck(String nickname, String command) {
+        Socket clientSocket;
+        try {
+            System.out.println(nickname + "trying to connect");
+            DatagramPacket packet = CommunicationConverter.fromMessageToPacket(command, nickname, CommunicationProperties.SERVER_IP, CommunicationProperties.PORT);
+            udpSocket.send(packet);
+            clientSocket = new Socket(socketHandler.getIp(nickname), CommunicationProperties.PORT);
+            socketHandler.addNewSocketIp(clientSocket, socketHandler.getIp(nickname));
+            System.out.println(nickname + " connected");
+            TCPChatReceiver tcpChatReceiver = new TCPChatReceiver(clientSocket);
+            tcpChatReceiver.start();
+        } catch (IOException e) {
+            System.out.println(e.getMessage());
+        }
+    }
+
+    private void sendCommand(String msg) {
+        String[] split = msg.trim().split(" ");
+        String nickname = split[1];
+        String command = split[0];
+        if (Objects.equals(command, "!ack")) {
+            sendAck(nickname, command);
+        } else {
+            sendUdpMessage(command, nickname);
+        }
+    }
+
+    private void sendUdpMessage(String command, String nickname) {
+        try {
+            DatagramPacket packet = CommunicationConverter.fromMessageToPacket(command, nickname, CommunicationProperties.SERVER_IP, CommunicationProperties.PORT);
+            udpSocket.send(packet);
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
         }
     }
 
     public void close() {
-        socket.close();
+        udpSocket.close();
     }
 }

@@ -20,25 +20,28 @@ public class SocketHandler {
     }
 
     public Socket acceptNewClient(String nickname, String ip) throws IOException {
-        //synchronized (serverSocket){
-        Socket socket = serverSocket.accept();
-        addNewConnection(socket, nickname);
-        addNewIp(nickname, ip);
-        return socket;
-        //}
+        synchronized (serverSocket) {
+            Socket socket = serverSocket.accept();
+            addNewSocketIpNickname(socket, ip, nickname);
+            return socket;
+        }
     }
 
-    public void addNewConnection(Socket clientSocket, String sender) {
-        nicknameSocketsPair.put(sender, clientSocket);
+    public void addNewSocketIp(Socket clientSocket, String ip) {
+        nicknameSocketsPair.put(ip, clientSocket);
+    }
+    public void addNewSocketIpNickname(Socket clientSocket, String ip, String nickname) {
+        addNewIpNickname(ip, nickname);
+        addNewSocketIp(clientSocket, ip);
     }
 
     public String getIp(String nickname) {
         return nicknameIpPair.get(nickname);
     }
 
-    public void addNewIp(String sender, String ip) {
+    public void addNewIpNickname(String ip, String nickname) {
         synchronized (nicknameIpPair) {
-            nicknameIpPair.put(sender, ip);
+            nicknameIpPair.put(nickname, ip);
         }
     }
 
