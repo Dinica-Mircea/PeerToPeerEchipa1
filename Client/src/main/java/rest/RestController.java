@@ -67,6 +67,12 @@ public class RestController {
         chatApplication.sendRequestFromRestService("#"+nickname);
         chatApplication.sendRequestFromRestService(message);
     }
+
+    @RequestMapping(value="/sendMessage/group/{groupName}",method= RequestMethod.POST)
+    public void sendMessageGroup(@RequestBody String message,@PathVariable String groupName) {
+        chatApplication.sendRequestFromRestService("!sendGroup " + groupName + " " + message);
+    }
+
 //    @RequestMapping(value="/bye/{nickname}",method= RequestMethod.GET)
 //    public void disconnectUser(@PathVariable String nickname) {
 //        chatApplication.sendRequestFromRestService("!bye "+nickname);

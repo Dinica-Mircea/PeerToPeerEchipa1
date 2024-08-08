@@ -10,6 +10,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.net.*;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 //@Component
 public class CommandSender {
@@ -111,10 +112,45 @@ public class CommandSender {
                 sendAcknowledgeGroup(groupName, command);
                 return;
             }
+            case "!sendGroup": {
+                String groupName = split[1];
+                String message = Arrays.stream(split)
+                        .skip(2)
+                        .reduce("", (sub, elem) -> sub.concat(" " + elem)).trim();
+                sendMessageGroup(groupName, message);
+                return;
+            }
             default: {
                 String nickname = split[1];
                 sendUdpMessage(command, nickname);
             }
+        }
+    }
+
+    private void sendMessageGroup(String groupName, String message) {
+        System.out.println("Sending the message <<" + message + ">> to group " + groupName);
+        if (groupHandler.existsGroup(groupName)) {
+            try {
+                String myIp = InetAddress.getLocalHost().getHostAddress().trim();
+                List<String> membersIps = groupHandler.getAllMembers(groupName);
+                membersIps.stream()
+                        .filter(membersIp -> !membersIp.equals(myIp))
+                        .map(socketHandler::getSocketByIp)
+                        .forEach(socket -> {
+                            try {
+                                OutputStream out = socket.getOutputStream();
+                                String json = CommunicationConverter.fromMessageGroupToJson("", message, groupName);
+                                out.write(json.getBytes());
+                            } catch (IOException e) {
+                                System.out.println("Couldn't send the message <<" + message + ">> in group " + groupName);
+                            }
+                        });
+            } catch (UnknownHostException e) {
+                System.out.println("Error sending the message <<" + message + ">> to group " + groupName);
+            }
+        }
+        else {
+            System.out.println("The group " + groupName + " doesn't exists");
         }
     }
 
