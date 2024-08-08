@@ -8,23 +8,24 @@ import java.util.concurrent.ConcurrentHashMap;
 public class GroupHandler {
     private final Map<String, List<String>> groups = new ConcurrentHashMap<>();
     private final Map<String, List<String>> sentInvitesNicknamesForGroup = new ConcurrentHashMap<>();
-    private final Map<String,String> receivedInvitesGroupIpPair = new ConcurrentHashMap<>(); // pair <Group Name, ip from person who invited me
+    private final Map<String, String> receivedInvitesGroupIpPair = new ConcurrentHashMap<>(); // pair <Group Name, ip from person who invited me
 
     public void addGroup(String groupName, List<String> members) {
         groups.put(groupName, members);
     }
 
-    public void addNicknameInPendingGroup(String groupNickname, String receiver) {
-        if (!groups.containsKey(groupNickname)) {
-            if (!sentInvitesNicknamesForGroup.containsKey(groupNickname)) {
-                sentInvitesNicknamesForGroup.put(groupNickname, new ArrayList<>());
+    public void addNicknameInPendingGroup(String groupName, String receiver) {
+        System.out.println("All groups:"+groups);
+        if (groups.containsKey(groupName)) {
+            if (!sentInvitesNicknamesForGroup.containsKey(groupName)) {
+                sentInvitesNicknamesForGroup.put(groupName, new ArrayList<>());
             }
-            List<String> pendingIps = sentInvitesNicknamesForGroup.get(groupNickname);
+            List<String> pendingIps = sentInvitesNicknamesForGroup.get(groupName);
             synchronized (pendingIps) {
                 pendingIps.add(receiver);
             }
         } else {
-            System.out.println("The group " + "doesn't exists");
+            System.out.println("The group " + groupName + "doesn't exists");
         }
     }
 
@@ -50,7 +51,7 @@ public class GroupHandler {
     }
 
     public void addNewInvite(String group, String ip) {
-        receivedInvitesGroupIpPair.put(group,ip);
+        receivedInvitesGroupIpPair.put(group, ip);
     }
 
 
