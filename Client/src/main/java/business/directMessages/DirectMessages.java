@@ -1,11 +1,13 @@
 package business.directMessages;
 
 import business.GroupHandler;
+import org.springframework.stereotype.Component;
 
 import java.net.Socket;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+@Component
 public class DirectMessages {
     private final ExecutorService executorService;
     private final GroupHandler groupHandler;

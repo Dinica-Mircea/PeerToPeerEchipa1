@@ -1,5 +1,7 @@
 plugins {
     id("java")
+    id("org.springframework.boot") version "3.3.0"
+    id("io.spring.dependency-management") version "1.1.5"
 }
 
 group = "org.example"
@@ -13,16 +15,20 @@ dependencies {
     testImplementation(platform("org.junit:junit-bom:5.10.0"))
     testImplementation("org.junit.jupiter:junit-jupiter")
 
-    // https://mvnrepository.com/artifact/com.googlecode.json-simple/json-simple
+    // JSON Processing
     implementation("com.googlecode.json-simple:json-simple:1.1")
-
-    // https://mvnrepository.com/artifact/com.fasterxml.jackson.core/jackson-annotations
     implementation("com.fasterxml.jackson.core:jackson-annotations:2.15.2")
-
-    // https://mvnrepository.com/artifact/com.fasterxml.jackson.core/jackson-databind
     implementation("com.fasterxml.jackson.core:jackson-databind:2.16.1")
 
+    // Spring Boot Starters
+    implementation("org.springframework.boot:spring-boot-starter-web:3.3.0")
+    implementation("org.springframework.boot:spring-boot-starter-actuator:3.3.0")
 
+    // Springdoc OpenAPI for Swagger
+    implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.2.0")
+
+    // Testing
+    testImplementation("org.springframework.boot:spring-boot-starter-test:3.3.0")
 }
 
 tasks.test {

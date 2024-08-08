@@ -1,10 +1,13 @@
 package business;
 
+import org.springframework.stereotype.Component;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+@Component
 public class GroupHandler {
     private final Map<String, List<String>> groups = new ConcurrentHashMap<>();
     private final Map<String, List<String>> sentInvitesNicknamesForGroup = new ConcurrentHashMap<>();

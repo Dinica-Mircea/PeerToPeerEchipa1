@@ -53,7 +53,7 @@ public class TCPChatReceiver extends Thread {
             System.out.println("Group " + message.group + " already exists");
         }
         else {
-            System.out.println("Group " + message.group + " doesn't exists");
+            System.out.println("Group " + message.group + " doesn't exist");
         }
         System.out.println(message.ips);
     }

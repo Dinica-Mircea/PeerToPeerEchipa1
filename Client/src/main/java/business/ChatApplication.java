@@ -1,15 +1,22 @@
 package business;
 
 import business.directMessages.DirectMessages;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 import java.util.Objects;
 import java.util.Scanner;
 
+@Component
 public class ChatApplication {
+    @Autowired
     private final SocketHandler socketHandler;
+    @Autowired
     private final GroupHandler groupHandler;
+    @Autowired
     private final DirectMessages directMessages;
+
 
     public ChatApplication() throws IOException {
         socketHandler = new SocketHandler();
@@ -42,4 +49,9 @@ public class ChatApplication {
             throw new RuntimeException(e);
         }
     }
+
+//    public void sendRequestFromRestService(String message){
+//        echoClient
+//    }
+
 }

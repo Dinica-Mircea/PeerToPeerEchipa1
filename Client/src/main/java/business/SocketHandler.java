@@ -1,5 +1,6 @@
 package business;
 
+import org.springframework.stereotype.Component;
 import utils.CommunicationProperties;
 
 import java.io.IOException;
@@ -9,6 +10,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+@Component
 public class SocketHandler {
     private final ServerSocket serverSocket;
     private final Map<String, Socket> ipSocketsPair;
