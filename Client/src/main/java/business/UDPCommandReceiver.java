@@ -24,9 +24,9 @@ public class UDPCommandReceiver {
     DirectMessages directMessages;
     GroupHandler groupHandler;
 
-    public UDPCommandReceiver(SocketHandler socketHandler, GroupHandler groupHandler,DirectMessages directMessages) throws SocketException {
+    public UDPCommandReceiver(SocketHandler socketHandler, GroupHandler groupHandler, DirectMessages directMessages) throws SocketException {
         this.socket = new DatagramSocket(CommunicationProperties.PORT);
-        this.directMessages =directMessages;
+        this.directMessages = directMessages;
         this.socketHandler = socketHandler;
         this.groupHandler = groupHandler;
         pendingGroups = new ConcurrentHashMap<>();
@@ -90,14 +90,18 @@ public class UDPCommandReceiver {
 
     private void handleAcknowledgeGroupCommand(Message message, String ip) {
         if (groupHandler.removeNicknamesInPending(message.group, message.sender)) {
+            System.out.println("Invite for " + message.sender + " for group " + message.group + " was accepted");
             socketHandler.addNewIpNickname(ip, message.sender);
             groupHandler.addNewMember(message.group, ip);
             try {
                 if (socketHandler.getSocketByIp(ip) == null) {
+                    System.out.println("Waiting for connection with new member" + ip);
                     socketHandler.acceptNewClient(message.sender, ip);
+                    System.out.println("Connected with new member" + ip);
                 }
                 List<String> groupIps = groupHandler.getAllMembers(message.group);
                 String myIp = InetAddress.getLocalHost().getHostAddress().trim();
+                System.out.println("Starting to send updates");
                 for (String memberIp : groupIps) {
                     if (!memberIp.equals(myIp)) {
                         sendGroupUpdate(memberIp, groupIps, message.group);
@@ -106,7 +110,7 @@ public class UDPCommandReceiver {
             } catch (IOException e) {
                 System.out.println(e.getMessage());
             }
-        } else{
+        } else {
             System.out.println(message.sender + "was not invited to " + message.group);
         }
     }
@@ -116,6 +120,7 @@ public class UDPCommandReceiver {
         if (socket == null) {
             System.out.println("No existing socket for " + memberIp);
         } else {
+            System.out.println("Sending update to " + memberIp + "for group " + group);
             OutputStream out = socket.getOutputStream();
             String json = CommunicationConverter.fromUpdateMessageToJson(group, groupIps);
             out.write(json.getBytes());

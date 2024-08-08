@@ -1,7 +1,6 @@
 package business;
 
 import business.directMessages.DirectMessages;
-import business.directMessages.TCPChatReceiver;
 import utils.CommunicationConverter;
 import utils.CommunicationProperties;
 
@@ -18,7 +17,7 @@ public class CommandSender {
     private GroupHandler groupHandler;
     private DirectMessages directMessages;
 
-    public CommandSender(SocketHandler socketHandler, GroupHandler groupHandler,DirectMessages directMessages) throws SocketException {
+    public CommandSender(SocketHandler socketHandler, GroupHandler groupHandler, DirectMessages directMessages) throws SocketException {
         this.socketHandler = socketHandler;
         this.udpSocket = new DatagramSocket();
         this.groupHandler = groupHandler;
@@ -115,7 +114,7 @@ public class CommandSender {
     }
 
     private void sendAcknowledgeGroup(String groupName, String command) {
-        System.out.println("Sending ackg to group "+groupName);
+        System.out.println("Sending ackg to group " + groupName);
         String inviterIp;
         if ((inviterIp = groupHandler.removeReceivedInvite(groupName)) != null) {
             Socket clientSocket;
@@ -124,11 +123,11 @@ public class CommandSender {
                 DatagramPacket packet = CommunicationConverter.fromMessageGroupToPacket(
                         command, "", groupName, CommunicationProperties.SERVER_IP, CommunicationProperties.PORT);
                 udpSocket.send(packet);
-                System.out.println("Sent packet "+ packet);
+                System.out.println("Sent packet " + packet);
                 if (socketHandler.getSocketByIp(inviterIp) == null) {
                     clientSocket = new Socket(inviterIp, CommunicationProperties.PORT);
                     socketHandler.addNewSocketIp(clientSocket, inviterIp);
-                    System.out.println(groupName + " connected");
+                    System.out.println("Connected with inviter with ip: " + inviterIp + "for group " + groupName);
                     directMessages.startNewChat(clientSocket);
                 } else {
                     System.out.println("Already connected with ip: " + inviterIp);
