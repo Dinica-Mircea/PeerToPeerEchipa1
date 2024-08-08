@@ -115,20 +115,21 @@ public class CommandSender {
     }
 
     private void sendAcknowledgeGroup(String groupName, String command) {
+        System.out.println("Sending ackg to group "+groupName);
         String inviterIp;
         if ((inviterIp = groupHandler.removeReceivedInvite(groupName)) != null) {
             Socket clientSocket;
             try {
-                System.out.println(groupName + "trying to connect");
+                System.out.println(groupName + " trying to connect");
                 DatagramPacket packet = CommunicationConverter.fromMessageGroupToPacket(
                         command, "", groupName, CommunicationProperties.SERVER_IP, CommunicationProperties.PORT);
                 udpSocket.send(packet);
+                System.out.println("Sent packet "+ packet);
                 if (socketHandler.getSocketByIp(inviterIp) == null) {
                     clientSocket = new Socket(inviterIp, CommunicationProperties.PORT);
-                    socketHandler.addNewSocketIp(clientSocket, socketHandler.getIp(groupName));
+                    socketHandler.addNewSocketIp(clientSocket, inviterIp);
                     System.out.println(groupName + " connected");
-                    TCPChatReceiver tcpChatReceiver = new TCPChatReceiver(clientSocket, groupHandler);
-                    tcpChatReceiver.start();
+                    directMessages.startNewChat(clientSocket);
                 } else {
                     System.out.println("Already connected with ip: " + inviterIp);
                 }
