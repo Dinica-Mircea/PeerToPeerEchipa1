@@ -1,9 +1,9 @@
 package business;
 
 import business.directMessages.DirectMessages;
+import domain.Message;
 import utils.CommunicationConverter;
 import utils.CommunicationProperties;
-import domain.Message;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -19,16 +19,16 @@ public class UDPCommandReceiver {
     private boolean stillRunning;
     private byte[] buf = new byte[1024];
     List<String> pendingUsers;
-    Map<String,String> pendingGroups;
+    Map<String, String> pendingGroups;
     SocketHandler socketHandler;
     DirectMessages directMessages;
     GroupHandler groupHandler;
 
-    public UDPCommandReceiver(SocketHandler socketHandler,GroupHandler groupHandler) throws SocketException {
+    public UDPCommandReceiver(SocketHandler socketHandler, GroupHandler groupHandler,DirectMessages directMessages) throws SocketException {
         this.socket = new DatagramSocket(CommunicationProperties.PORT);
-        this.directMessages = new DirectMessages(10,groupHandler);
+        this.directMessages =directMessages;
         this.socketHandler = socketHandler;
-        this.groupHandler=groupHandler;
+        this.groupHandler = groupHandler;
         pendingGroups = new ConcurrentHashMap<>();
         pendingUsers = new ArrayList<>();
     }
@@ -55,7 +55,7 @@ public class UDPCommandReceiver {
         System.out.println("From " + ip);
         if (Objects.equals(message.receiver, CommunicationProperties.MY_NICKNAME)) {
             switch (message.message) {
-                case "!hello":{
+                case "!hello": {
                     handleHelloCommand(message, ip);
                     return;
                 }
@@ -63,18 +63,18 @@ public class UDPCommandReceiver {
                     handleAckCommand(message, ip);
                     return;
                 }
-                case "!bye":{
+                case "!bye": {
                     handleByeMethod(message);
                     return;
                 }
-                case "!ackg":{
-                    handleAckgCommand(message,ip);
+                case "!ackg": {
+                    handleAcknowledgeGroupCommand(message, ip);
                     return;
                 }
                 case "!invite": {
                     handleInviteCommand(message, ip);
                 }
-                case "!stop":{
+                case "!stop": {
                     System.out.println(message);
                     stillRunning = false;
                 }
@@ -83,53 +83,55 @@ public class UDPCommandReceiver {
     }
 
     private void handleInviteCommand(Message message, String ip) {
-        groupHandler.addNewInvite(message.group,ip);
-       socketHandler.addNewIpNickname(ip, message.sender);
+        groupHandler.addNewInvite(message.group, ip);
+        socketHandler.addNewIpNickname(ip, message.sender);
         System.out.println(message.group + " pending connection");
     }
 
-    private void handleAckgCommand(Message message,String ip) {
-        if(groupHandler.removeNicknamesInPending(message.group,message.sender)){
-            socketHandler.addNewIpNickname(ip,message.sender);
+    private void handleAcknowledgeGroupCommand(Message message, String ip) {
+        if (groupHandler.removeNicknamesInPending(message.group, message.sender)) {
+            socketHandler.addNewIpNickname(ip, message.sender);
             groupHandler.addNewMember(message.group, ip);
             try {
-                if(socketHandler.getSocketByIp(ip)==null){
-                    socketHandler.acceptNewClient(message.sender,ip);
+                if (socketHandler.getSocketByIp(ip) == null) {
+                    socketHandler.acceptNewClient(message.sender, ip);
                 }
-                List<String> groupIps=groupHandler.getAllMembers(message.group);
+                List<String> groupIps = groupHandler.getAllMembers(message.group);
                 String myIp = InetAddress.getLocalHost().getHostAddress().trim();
-                for(String memberIp:groupIps){
-                    if (!memberIp.equals(myIp)){
-                        sendUpdate(memberIp, groupIps,message.group);
+                for (String memberIp : groupIps) {
+                    if (!memberIp.equals(myIp)) {
+                        sendGroupUpdate(memberIp, groupIps, message.group);
                     }
                 }
             } catch (IOException e) {
                 System.out.println(e.getMessage());
             }
+        } else{
+            System.out.println(message.sender + "was not invited to " + message.group);
         }
     }
 
-    private void sendUpdate(String memberIp, List<String> groupIps,String group) throws IOException {
+    private void sendGroupUpdate(String memberIp, List<String> groupIps, String group) throws IOException {
         Socket socket = socketHandler.getSocketByIp(memberIp);
         if (socket == null) {
             System.out.println("No existing socket for " + memberIp);
         } else {
             OutputStream out = socket.getOutputStream();
-            String json = CommunicationConverter.fromUpdateMessageToJson(group,groupIps);
+            String json = CommunicationConverter.fromUpdateMessageToJson(group, groupIps);
             out.write(json.getBytes());
         }
     }
 
     private void handleByeMethod(Message message) {
-        Socket socket=socketHandler.getSocketByNickname(message.sender);
-        if(socket!=null){
+        Socket socket = socketHandler.getSocketByNickname(message.sender);
+        if (socket != null) {
             socketHandler.remove(message.sender);
             System.out.println(message.sender + " disconnected");
         }
     }
 
     private void handleAckCommand(Message message, String ip) {
-        if(socketHandler.getSocketByIp(ip)==null){
+        if (socketHandler.getSocketByIp(ip) == null) {
             try {
                 System.out.println(message.sender + " trying to connect");
                 Socket clientSocket = socketHandler.acceptNewClient(message.sender, ip);
@@ -139,7 +141,7 @@ public class UDPCommandReceiver {
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
-        }else{
+        } else {
             System.out.println(message.sender + " already connected");
         }
 

@@ -1,5 +1,6 @@
 package business;
 
+import business.directMessages.DirectMessages;
 import business.directMessages.TCPChatReceiver;
 import utils.CommunicationConverter;
 import utils.CommunicationProperties;
@@ -15,11 +16,13 @@ public class CommandSender {
     private final SocketHandler socketHandler;
     private String currentReceiver;
     private GroupHandler groupHandler;
+    private DirectMessages directMessages;
 
-    public CommandSender(SocketHandler socketHandler, GroupHandler groupHandler) throws SocketException {
+    public CommandSender(SocketHandler socketHandler, GroupHandler groupHandler,DirectMessages directMessages) throws SocketException {
         this.socketHandler = socketHandler;
         this.udpSocket = new DatagramSocket();
-        this.groupHandler = new GroupHandler();
+        this.groupHandler = groupHandler;
+        this.directMessages = directMessages;
     }
 
     public void sendEcho(String msg) throws IOException {
@@ -63,8 +66,7 @@ public class CommandSender {
                 clientSocket = new Socket(socketHandler.getIp(nickname), CommunicationProperties.PORT);
                 socketHandler.addNewSocketIp(clientSocket, socketHandler.getIp(nickname));
                 System.out.println(nickname + " connected");
-                TCPChatReceiver tcpChatReceiver = new TCPChatReceiver(clientSocket, groupHandler);
-                tcpChatReceiver.start();
+                directMessages.startNewChat(clientSocket);
             }
         } catch (IOException e) {
             System.out.println(e.getMessage());
@@ -73,54 +75,68 @@ public class CommandSender {
 
     private void sendCommand(String msg) {
         String[] split = msg.trim().split(" ");
-        String nickname = split[1];
         String command = split[0];
         switch (command) {
             case "!ack": {
+                String nickname = split[1];
                 sendAck(nickname, command);
                 return;
             }
             case "!group": {
+                String groupName = split[1];
                 List<String> groupIps = new ArrayList<>();
                 try {
                     String myIp = InetAddress.getLocalHost().getHostAddress().trim();
+                    System.out.println("Creating group with ip: " + myIp);
                     groupIps.add(myIp);
-                    groupHandler.addGroup(nickname, groupIps);
+                    groupHandler.addGroup(groupName, groupIps);
                 } catch (UnknownHostException e) {
                     System.out.println("Can't get my ip.");
                 }
                 return;
             }
             case "!invite": {
-                groupHandler.addNicknameInPendingGroup(nickname, socketHandler.getIp(split[2]));
-                sendGroupInvite(command, nickname, split[2]);
+                String groupName = split[1];
+                String personToBeInvited = split[2];
+                groupHandler.addNicknameInPendingGroup(groupName, personToBeInvited);
+                sendGroupInvite(command, groupName, personToBeInvited);
                 return;
             }
             case "!ackg": {
-                sendAckg(nickname, command);
+                String groupName = split[1];
+                sendAcknowledgeGroup(groupName, command);
+                return;
             }
-            default:
+            default: {
+                String nickname = split[1];
                 sendUdpMessage(command, nickname);
+            }
         }
     }
 
-    private void sendAckg(String nickname, String command) {
-        Socket clientSocket;
-        try {
-            System.out.println(nickname + "trying to connect");
-            DatagramPacket packet = CommunicationConverter.fromMessageGroupToPacket(
-                    command, "", nickname, CommunicationProperties.SERVER_IP, CommunicationProperties.PORT);
-            udpSocket.send(packet);
-            String inviterIp=groupHandler.getInviteIp(nickname);
-            if (socketHandler.getSocketByIp(inviterIp) == null) {
-                clientSocket = new Socket(inviterIp, CommunicationProperties.PORT);
-                socketHandler.addNewSocketIp(clientSocket, socketHandler.getIp(nickname));
-                System.out.println(nickname + " connected");
-                TCPChatReceiver tcpChatReceiver = new TCPChatReceiver(clientSocket, groupHandler);
-                tcpChatReceiver.start();
+    private void sendAcknowledgeGroup(String groupName, String command) {
+        String inviterIp;
+        if ((inviterIp = groupHandler.removeReceivedInvite(groupName)) != null) {
+            Socket clientSocket;
+            try {
+                System.out.println(groupName + "trying to connect");
+                DatagramPacket packet = CommunicationConverter.fromMessageGroupToPacket(
+                        command, "", groupName, CommunicationProperties.SERVER_IP, CommunicationProperties.PORT);
+                udpSocket.send(packet);
+                if (socketHandler.getSocketByIp(inviterIp) == null) {
+                    clientSocket = new Socket(inviterIp, CommunicationProperties.PORT);
+                    socketHandler.addNewSocketIp(clientSocket, socketHandler.getIp(groupName));
+                    System.out.println(groupName + " connected");
+                    TCPChatReceiver tcpChatReceiver = new TCPChatReceiver(clientSocket, groupHandler);
+                    tcpChatReceiver.start();
+                } else {
+                    System.out.println("Already connected with ip: " + inviterIp);
+                }
+            } catch (IOException e) {
+                System.out.println(e.getMessage());
             }
-        } catch (IOException e) {
-            System.out.println(e.getMessage());
+        } else {
+            System.out.println("Didn't have the invitation for group " + groupName);
         }
     }
 

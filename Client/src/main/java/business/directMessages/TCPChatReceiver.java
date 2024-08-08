@@ -11,7 +11,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.DatagramPacket;
 import java.net.Socket;
-import java.util.Objects;
 
 public class TCPChatReceiver extends Thread {
     private final Socket clientSocket;
@@ -36,7 +35,7 @@ public class TCPChatReceiver extends Thread {
                         Message message = CommunicationConverter.fromPacketToMessage(packet);
                         System.out.println(message);
                         if(message.message.equals("!update")){
-                            handleUpdateCommmand(message);
+                            handleUpdateCommand(message);
                         }
                     } catch (JsonProcessingException e) {
                         System.out.println(e.getMessage());
@@ -49,7 +48,7 @@ public class TCPChatReceiver extends Thread {
 
     }
 
-    private void handleUpdateCommmand(Message message) {
+    private void handleUpdateCommand(Message message) {
         if (groupHandler.existsGroup(message.group)) {
             System.out.println("Group " + message.group + " already exists");
         }

@@ -6,9 +6,9 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class GroupHandler {
-    private Map<String, List<String>> groups = new ConcurrentHashMap<>();
-    private Map<String, List<String>> pendingNicknamesForGroup = new ConcurrentHashMap<>();
-    private Map<String,String> invitesGroupIpPair = new ConcurrentHashMap<>();
+    private final Map<String, List<String>> groups = new ConcurrentHashMap<>();
+    private final Map<String, List<String>> sentInvitesNicknamesForGroup = new ConcurrentHashMap<>();
+    private final Map<String,String> receivedInvitesGroupIpPair = new ConcurrentHashMap<>(); // pair <Group Name, ip from person who invited me
 
     public void addGroup(String groupName, List<String> members) {
         groups.put(groupName, members);
@@ -16,10 +16,10 @@ public class GroupHandler {
 
     public void addNicknameInPendingGroup(String groupNickname, String receiver) {
         if (!groups.containsKey(groupNickname)) {
-            if (!pendingNicknamesForGroup.containsKey(groupNickname)) {
-                pendingNicknamesForGroup.put(groupNickname, new ArrayList<>());
+            if (!sentInvitesNicknamesForGroup.containsKey(groupNickname)) {
+                sentInvitesNicknamesForGroup.put(groupNickname, new ArrayList<>());
             }
-            List<String> pendingIps = pendingNicknamesForGroup.get(groupNickname);
+            List<String> pendingIps = sentInvitesNicknamesForGroup.get(groupNickname);
             synchronized (pendingIps) {
                 pendingIps.add(receiver);
             }
@@ -29,7 +29,7 @@ public class GroupHandler {
     }
 
     public boolean removeNicknamesInPending(String group, String sender) {
-        return pendingNicknamesForGroup.containsKey(group) && pendingNicknamesForGroup.get(group).remove(sender);
+        return sentInvitesNicknamesForGroup.containsKey(group) && sentInvitesNicknamesForGroup.get(group).remove(sender);
 
     }
 
@@ -50,10 +50,11 @@ public class GroupHandler {
     }
 
     public void addNewInvite(String group, String ip) {
-        invitesGroupIpPair.put(group,ip);
+        receivedInvitesGroupIpPair.put(group,ip);
     }
 
-    public String getInviteIp(String nickname) {
-        return invitesGroupIpPair.get(nickname);
+
+    public String removeReceivedInvite(String groupName) {
+        return receivedInvitesGroupIpPair.remove(groupName);
     }
 }
