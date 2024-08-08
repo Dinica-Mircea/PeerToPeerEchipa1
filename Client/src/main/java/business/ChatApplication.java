@@ -10,23 +10,21 @@ import java.util.Scanner;
 
 @Component
 public class ChatApplication {
-    @Autowired
-    private final SocketHandler socketHandler;
-    @Autowired
-    private final GroupHandler groupHandler;
-    @Autowired
-    private final DirectMessages directMessages;
 
+    UDPCommandReceiver UDPCommandReceiver;
+    CommandSender echoClient;
 
     public ChatApplication() throws IOException {
-        socketHandler = new SocketHandler();
-        groupHandler = new GroupHandler();
-        directMessages = new DirectMessages(10, groupHandler);
+        System.out.println("Creating socket by chat application");
+        SocketHandler socketHandler = new SocketHandler();
+        GroupHandler groupHandler = new GroupHandler();
+        DirectMessages directMessages = new DirectMessages(10, groupHandler);
+        this.UDPCommandReceiver = new UDPCommandReceiver(socketHandler, groupHandler, directMessages);
+        this.echoClient = new CommandSender(socketHandler, groupHandler, directMessages);
     }
 
     public void runServer() {
         try {
-            UDPCommandReceiver UDPCommandReceiver = new UDPCommandReceiver(socketHandler, groupHandler, directMessages);
             UDPCommandReceiver.run();
         } catch (Exception e) {
             System.out.println(e.getMessage());
@@ -35,7 +33,6 @@ public class ChatApplication {
 
     public void runClient() {
         try {
-            CommandSender echoClient = new CommandSender(socketHandler, groupHandler, directMessages);
             while (true) {
                 Scanner scanner = new Scanner(System.in);
                 String message = scanner.nextLine();
@@ -50,8 +47,12 @@ public class ChatApplication {
         }
     }
 
-//    public void sendRequestFromRestService(String message){
-//        echoClient
-//    }
+    public void sendRequestFromRestService(String message) {
+        try {
+            echoClient.sendEcho(message);
+        } catch (IOException e) {
+            System.out.println("Couldn't send message: " + message);
+        }
+    }
 
 }

@@ -2,6 +2,8 @@ package business;
 
 import business.directMessages.DirectMessages;
 import domain.Message;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 import utils.CommunicationConverter;
 import utils.CommunicationProperties;
 
@@ -13,7 +15,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
-
 public class UDPCommandReceiver {
     private final DatagramSocket socket;
     private boolean stillRunning;

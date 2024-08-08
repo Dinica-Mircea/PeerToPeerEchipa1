@@ -7,7 +7,7 @@ import java.net.Socket;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-@Component
+//@Component
 public class DirectMessages {
     private final ExecutorService executorService;
     private final GroupHandler groupHandler;
@@ -18,7 +18,7 @@ public class DirectMessages {
     }
 
     public void startNewChat(Socket socket) {
-        TCPChatReceiver tcpChatReceiver = new TCPChatReceiver(socket,groupHandler);
+        TCPChatReceiver tcpChatReceiver = new TCPChatReceiver(socket,groupHandler, this);
         executorService.submit(tcpChatReceiver);
     }
 

@@ -1,6 +1,8 @@
 package business;
 
 import business.directMessages.DirectMessages;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 import utils.CommunicationConverter;
 import utils.CommunicationProperties;
 
@@ -9,12 +11,15 @@ import java.io.OutputStream;
 import java.net.*;
 import java.util.ArrayList;
 import java.util.List;
-
+//@Component
 public class CommandSender {
-    private final DatagramSocket udpSocket;
-    private final SocketHandler socketHandler;
     private String currentReceiver;
+    private final DatagramSocket udpSocket;
+//    @Autowired
+    private final SocketHandler socketHandler;
+//    @Autowired
     private GroupHandler groupHandler;
+//    @Autowired
     private DirectMessages directMessages;
 
     public CommandSender(SocketHandler socketHandler, GroupHandler groupHandler, DirectMessages directMessages) throws SocketException {

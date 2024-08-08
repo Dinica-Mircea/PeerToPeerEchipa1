@@ -1,5 +1,6 @@
 package business;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
@@ -7,18 +8,24 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-@Component
+//@Component
 public class GroupHandler {
-    private final Map<String, List<String>> groups = new ConcurrentHashMap<>();
-    private final Map<String, List<String>> sentInvitesNicknamesForGroup = new ConcurrentHashMap<>();
-    private final Map<String, String> receivedInvitesGroupIpPair = new ConcurrentHashMap<>(); // pair <Group Name, ip from person who invited me
+    private final Map<String, List<String>> groups;
+    private final Map<String, List<String>> sentInvitesNicknamesForGroup;
+    private final Map<String, String> receivedInvitesGroupIpPair; // pair <Group Name, ip from person who invited me
+
+    public GroupHandler() {
+        groups = new ConcurrentHashMap<>();
+        sentInvitesNicknamesForGroup = new ConcurrentHashMap<>();
+        receivedInvitesGroupIpPair = new ConcurrentHashMap<>();
+    }
 
     public void addGroup(String groupName, List<String> members) {
         groups.put(groupName, members);
     }
 
     public void addNicknameInPendingGroup(String groupName, String receiver) {
-        System.out.println("All groups:"+groups);
+        System.out.println("All groups:" + groups);
         if (groups.containsKey(groupName)) {
             if (!sentInvitesNicknamesForGroup.containsKey(groupName)) {
                 sentInvitesNicknamesForGroup.put(groupName, new ArrayList<>());

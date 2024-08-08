@@ -10,13 +10,15 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-@Component
+//@Component
 public class SocketHandler {
+
     private final ServerSocket serverSocket;
     private final Map<String, Socket> ipSocketsPair;
     private final Map<String, String> nicknameIpPair;
 
     public SocketHandler() throws IOException {
+        System.out.println("Socket handler started");
         serverSocket = new ServerSocket(CommunicationProperties.PORT);
         ipSocketsPair = new ConcurrentHashMap<>();
         nicknameIpPair = new ConcurrentHashMap<>();
@@ -26,6 +28,14 @@ public class SocketHandler {
         synchronized (serverSocket) {
             Socket socket = serverSocket.accept();
             addNewSocketIpNickname(socket, ip, nickname);
+            return socket;
+        }
+    }
+
+    public Socket acceptNewClient(String ip) throws IOException {
+        synchronized (serverSocket) {
+            Socket socket = serverSocket.accept();
+            addNewSocketIp(socket, ip);
             return socket;
         }
     }
