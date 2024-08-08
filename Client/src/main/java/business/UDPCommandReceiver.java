@@ -67,17 +67,22 @@ public class UDPCommandReceiver {
                     handleByeMethod(message);
                     return;
                 }
-                case "!ackg": {
-                    handleAcknowledgeGroupCommand(message, ip);
-                    return;
-                }
+//                case "!ackg": {
+//                    handleAcknowledgeGroupCommand(message, ip);
+//                    return;
+//                }
                 case "!invite": {
                     handleInviteCommand(message, ip);
+                    return;
                 }
                 case "!stop": {
                     System.out.println(message);
                     stillRunning = false;
                 }
+            }
+        } else{
+            if(Objects.equals(message.message, "!ackg")){
+                handleAcknowledgeGroupCommand(message,ip);
             }
         }
     }
