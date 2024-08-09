@@ -17,7 +17,7 @@ public class ChatApplication {
         System.out.println("Creating socket by chat application");
         SocketHandler socketHandler = new SocketHandler();
         GroupHandler groupHandler = new GroupHandler();
-        DirectMessages directMessages = new DirectMessages(20, groupHandler);
+        DirectMessages directMessages = new DirectMessages(20, groupHandler,socketHandler);
         this.UDPCommandReceiver = new UDPCommandReceiver(socketHandler, groupHandler, directMessages);
         this.commandSender = new CommandSender(socketHandler, groupHandler, directMessages);
     }

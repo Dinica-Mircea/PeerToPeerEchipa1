@@ -23,10 +23,11 @@ public class TCPChatReceiver extends Thread {
     SocketHandler socketHandler;
     DirectMessages directMessages;
 
-    public TCPChatReceiver(Socket clientSocket, GroupHandler groupHandler, DirectMessages directMessages) {
+    public TCPChatReceiver(Socket clientSocket, GroupHandler groupHandler, DirectMessages directMessages,SocketHandler socketHandler) {
         this.groupHandler = groupHandler;
         this.clientSocket = clientSocket;
         this.directMessages = directMessages;
+        this.socketHandler=socketHandler;
     }
 
     @Override
@@ -86,6 +87,7 @@ public class TCPChatReceiver extends Thread {
                 System.out.println("Starting to initialize connections with group members");
                 for (String memberIp : message.ips) {
                     if (!memberIp.equals(myIp) && socketHandler.getSocketByIp(memberIp) == null) {
+                        System.out.println("Connecting with member of group " + message.group + " with ip: " + memberIp);
                         Socket groupMemberSocket = new Socket(memberIp, CommunicationProperties.PORT);
                         socketHandler.addNewSocketIp(groupMemberSocket, memberIp);
                         System.out.println("Connected with member of group" + message.group + " with ip: " + memberIp);
