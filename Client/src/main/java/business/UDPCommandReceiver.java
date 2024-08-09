@@ -90,12 +90,12 @@ public class UDPCommandReceiver {
     private void handleInviteCommand(Message message, String ip) {
         groupHandler.addNewInvite(message.group, ip);
         socketHandler.addNewIpNickname(ip, message.sender);
-        System.out.println(message.group + " pending connection");
+        OutputHandler.handleOutput(message.group + " pending connection");
     }
 
     private void handleAcknowledgeGroupCommand(Message message, String ip) {
         if (groupHandler.removeNicknamesInPending(message.group, message.sender)) {
-            System.out.println("Invite for " + message.sender + " for group " + message.group + " was accepted");
+            OutputHandler.handleOutput("Invite for " + message.sender + " for group " + message.group + " was accepted");
             socketHandler.addNewIpNickname(ip, message.sender);
             groupHandler.addNewMember(message.group, ip);
             try {
@@ -139,7 +139,7 @@ public class UDPCommandReceiver {
         Socket socket = socketHandler.getSocketByNickname(message.sender);
         if (socket != null) {
             socketHandler.remove(message.sender);
-            System.out.println(message.sender + " disconnected");
+            OutputHandler.handleOutput(message.sender + " disconnected");
         }
     }
 
@@ -148,7 +148,7 @@ public class UDPCommandReceiver {
             try {
                 System.out.println(message.sender + " trying to connect");
                 Socket clientSocket = socketHandler.acceptNewClient(message.sender, ip);
-                System.out.println(message.sender + " acknowledged connection");
+                OutputHandler.handleOutput(message.sender + " acknowledged connection");
                 pendingUsers.remove(message.sender);
                 directMessages.startNewChat(clientSocket);
             } catch (IOException e) {

@@ -50,7 +50,7 @@ public class ChatApplication {
         try {
             commandSender.sendMessage(message);
         } catch (IOException e) {
-            System.out.println("Couldn't send message: " + message);
+            OutputHandler.handleOutput("Couldn't send message: " + message);
         }
     }
 

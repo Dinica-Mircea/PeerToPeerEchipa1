@@ -1,6 +1,7 @@
 package business.directMessages;
 
 import business.GroupHandler;
+import business.OutputHandler;
 import business.SocketHandler;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import domain.Message;
@@ -39,9 +40,12 @@ public class TCPChatReceiver extends Thread {
                     DatagramPacket packet = new DatagramPacket(buf, buf.length);
                     try {
                         Message message = CommunicationConverter.fromPacketToMessage(packet);
-                        System.out.println(message);
                         if (message.message.equals("!update")) {
                             handleUpdateCommand(message);
+                        }
+                        else {
+                            System.out.println(message);
+                            OutputHandler.handleOutput(message.toString());
                         }
                     } catch (JsonProcessingException e) {
                         System.out.println(e.getMessage());
@@ -67,6 +71,7 @@ public class TCPChatReceiver extends Thread {
                             Socket groupMemberSocket = socketHandler.acceptNewClient(memberIp);
                             socketHandler.addNewSocketIp(groupMemberSocket, memberIp);
                             System.out.println("Connected with member of group" + message.group + " with ip: " + memberIp);
+                            OutputHandler.handleOutput("New member connected in group " + message.group);
                             directMessages.startNewChat(clientSocket);
                         }
                     }
@@ -95,6 +100,7 @@ public class TCPChatReceiver extends Thread {
                     }
                 }
                 System.out.println("Finished initializing connections with group " + message.group);
+                OutputHandler.handleOutput("Joined group " + message.group);
             } catch (UnknownHostException e) {
                 System.out.println("can't get host address");
             } catch (IOException e) {

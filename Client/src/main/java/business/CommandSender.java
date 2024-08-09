@@ -42,12 +42,13 @@ public class CommandSender {
 
     private void sendDirectMessage(String msg) throws IOException {
         if(currentReceiver == null) {
-            System.out.println("No receiver selected");
+            OutputHandler.handleOutput("No receiver selected");
             return;
         }
         Socket socket = socketHandler.getSocketByNickname(currentReceiver);
         if (socket == null) {
             System.out.println("No existing ip for " + currentReceiver);
+            OutputHandler.handleOutput("Couldn't connect with " + currentReceiver);
         } else {
             OutputStream out = socket.getOutputStream();
             Message message = new Message(CommunicationProperties.MY_NICKNAME, currentReceiver, msg);
@@ -60,9 +61,9 @@ public class CommandSender {
         String nextReceiver = msg.replace("#", "");
         if (socketHandler.getIpFromNickname(nextReceiver) != null) {
             currentReceiver = nextReceiver;
-            System.out.println("current receiver updated: " + currentReceiver);
+            OutputHandler.handleOutput("current receiver updated: " + currentReceiver);
         } else {
-            System.out.println(nextReceiver + " not connected");
+            OutputHandler.handleOutput(nextReceiver + " not connected");
         }
     }
 
@@ -76,7 +77,7 @@ public class CommandSender {
             if (socketHandler.getSocketByNickname(nickname) == null) {
                 clientSocket = new Socket(socketHandler.getIpFromNickname(nickname), CommunicationProperties.PORT);
                 socketHandler.addNewSocketIp(clientSocket, socketHandler.getIpFromNickname(nickname));
-                System.out.println(nickname + " connected");
+                OutputHandler.handleOutput(nickname + " connected");
                 directMessages.startNewChat(clientSocket);
             }
         } catch (IOException e) {
@@ -139,10 +140,12 @@ public class CommandSender {
         try {
             String myIp = InetAddress.getLocalHost().getHostAddress().trim();
             System.out.println("Creating group with ip: " + myIp);
+            OutputHandler.handleOutput("Creating group: " + groupName);
             groupIps.add(myIp);
             groupHandler.addGroup(groupName, groupIps);
         } catch (UnknownHostException e) {
             System.out.println("Can't get my ip.");
+            OutputHandler.handleOutput("Couldn't create a group");
         }
     }
 
@@ -169,27 +172,11 @@ public class CommandSender {
                         }
                     }
                 }
-//                membersIps.stream()
-//                        .filter(membersIp -> !membersIp.equals(myIp))
-//                        .map(socketHandler::getSocketByIp)
-//                        .forEach(socket -> {
-//                            try {
-//                                if (socket != null) {
-//                                    System.out.println("Sending <<" + message + ">> to " + socket.getInetAddress().getHostAddress()
-//                                            + " in group " + groupName);
-//                                    OutputStream out = socket.getOutputStream();
-//                                    String json = CommunicationConverter.fromMessageGroupToJson("", message, groupName);
-//                                    out.write(json.getBytes());
-//                                }
-//                            } catch (IOException e) {
-//                                System.out.println("Couldn't send the message <<" + message + ">> in group " + groupName);
-//                            }
-//                        });
             } catch (IOException e) {
-                System.out.println("Error sending the message <<" + message + ">> to group " + groupName);
+                OutputHandler.handleOutput("Error sending the message <<" + message + ">> to group " + groupName);
             }
         } else {
-            System.out.println("The group " + groupName + " doesn't exists");
+            OutputHandler.handleOutput("The group " + groupName + " doesn't exist");
         }
     }
 
@@ -218,6 +205,7 @@ public class CommandSender {
             }
         } else {
             System.out.println("Didn't have the invitation for group " + groupName);
+            OutputHandler.handleOutput("Didn't have the invitation for group " + groupName);
         }
     }
 

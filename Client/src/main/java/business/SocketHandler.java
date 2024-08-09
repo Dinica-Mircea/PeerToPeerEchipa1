@@ -26,10 +26,6 @@ public class SocketHandler {
     public Socket acceptNewClient(String nickname, String ip) throws IOException {
         synchronized (serverSocket) {
             Socket socket = serverSocket.accept();
-
-            // asteapta pe socket
-
-
             addNewSocketIpNickname(socket, ip, nickname);
             return socket;
         }
