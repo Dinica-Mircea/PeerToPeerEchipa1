@@ -47,6 +47,8 @@ public class TCPChatReceiver extends Thread {
                     } catch (JsonProcessingException e) {
                         System.out.println(e.getMessage());
                     }
+                }else{
+                    break;
                 }
             }
         } catch (IOException e) {

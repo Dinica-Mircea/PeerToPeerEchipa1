@@ -67,10 +67,6 @@ public class UDPCommandReceiver {
                     handleByeMethod(message);
                     return;
                 }
-//                case "!ackg": {
-//                    handleAcknowledgeGroupCommand(message, ip);
-//                    return;
-//                }
                 case "!invite": {
                     handleInviteCommand(message, ip);
                     return;
