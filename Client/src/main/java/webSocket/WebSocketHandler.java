@@ -39,7 +39,10 @@ public class WebSocketHandler extends TextWebSocketHandler {
         this.session = session;
     }
 
-    public static WebSocketSession getSession() {
+    public static WebSocketSession getSession() throws IOException {
+        if (session == null) {
+            throw new IOException("No session connected");
+        }
         return session;
     }
 }

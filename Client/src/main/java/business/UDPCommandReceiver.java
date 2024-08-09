@@ -163,6 +163,7 @@ public class UDPCommandReceiver {
     private void handleHelloCommand(Message message, String ip) {
         pendingUsers.add(message.sender);
         socketHandler.addNewIpNickname(ip, message.sender);
-        System.out.println(message.sender + " pending connection");
+//        System.out.println(message.sender + " pending connection");
+        OutputHandler.handleOutput(message.sender + " pending connection");
     }
 }
