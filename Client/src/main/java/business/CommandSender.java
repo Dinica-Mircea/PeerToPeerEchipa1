@@ -111,6 +111,11 @@ public class CommandSender {
                 sendGroupMessage(split, groupName);
                 return;
             }
+            case "!bye":{
+                String nickname=split[1];
+                socketHandler.remove(nickname);
+                OutputHandler.handleOutput(nickname + " disconnected");
+            }
             default: {
                 String nickname = split[1];
                 sendUdpMessage(command, nickname);
