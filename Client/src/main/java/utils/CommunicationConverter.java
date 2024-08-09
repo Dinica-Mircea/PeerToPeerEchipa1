@@ -2,13 +2,12 @@ package utils;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import exceptions.IncorrectMessageFormatException;
 import domain.Message;
+import exceptions.IncorrectMessageFormatException;
 
 import java.net.DatagramPacket;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
-import java.util.List;
 
 public class CommunicationConverter {
     private static final ObjectMapper mapper = new ObjectMapper();

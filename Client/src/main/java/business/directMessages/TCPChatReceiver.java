@@ -23,11 +23,11 @@ public class TCPChatReceiver extends Thread {
     SocketHandler socketHandler;
     DirectMessages directMessages;
 
-    public TCPChatReceiver(Socket clientSocket, GroupHandler groupHandler, DirectMessages directMessages,SocketHandler socketHandler) {
+    public TCPChatReceiver(Socket clientSocket, GroupHandler groupHandler, DirectMessages directMessages, SocketHandler socketHandler) {
         this.groupHandler = groupHandler;
         this.clientSocket = clientSocket;
         this.directMessages = directMessages;
-        this.socketHandler=socketHandler;
+        this.socketHandler = socketHandler;
     }
 
     @Override

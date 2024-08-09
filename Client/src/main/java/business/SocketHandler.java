@@ -47,6 +47,7 @@ public class SocketHandler {
         System.out.println("New socket added for " + ip);
         ipSocketsPair.put(ip, clientSocket);
     }
+
     public void addNewSocketIpNickname(Socket clientSocket, String ip, String nickname) {
         addNewIpNickname(ip, nickname);
         addNewSocketIp(clientSocket, ip);
@@ -64,6 +65,8 @@ public class SocketHandler {
 
     public Socket getSocketByNickname(String nickname) {
         String ip = nicknameIpPair.get(nickname);
+        if(ip==null)
+            return null;
         synchronized (ipSocketsPair) {
             if (ipSocketsPair.containsKey(ip)) {
                 return ipSocketsPair.get(ip);
@@ -85,8 +88,8 @@ public class SocketHandler {
         String ip = nicknameIpPair.get(nickname);
 
 //        synchronized (ipSocketsPair) {
-            ipSocketsPair.remove(ip);
-            nicknameIpPair.remove(nickname);
+        ipSocketsPair.remove(ip);
+        nicknameIpPair.remove(nickname);
 //        }
     }
 

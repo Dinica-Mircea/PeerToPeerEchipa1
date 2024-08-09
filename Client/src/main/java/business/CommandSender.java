@@ -11,15 +11,16 @@ import java.net.*;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+
 //@Component
 public class CommandSender {
     private String currentReceiver;
     private final DatagramSocket udpSocket;
-//    @Autowired
+    //    @Autowired
     private final SocketHandler socketHandler;
-//    @Autowired
+    //    @Autowired
     private GroupHandler groupHandler;
-//    @Autowired
+    //    @Autowired
     private DirectMessages directMessages;
 
     public CommandSender(SocketHandler socketHandler, GroupHandler groupHandler, DirectMessages directMessages) throws SocketException {
@@ -40,6 +41,10 @@ public class CommandSender {
     }
 
     private void sendDirectMessage(String msg) throws IOException {
+        if(currentReceiver == null) {
+            System.out.println("No receiver selected");
+            return;
+        }
         Socket socket = socketHandler.getSocketByNickname(currentReceiver);
         if (socket == null) {
             System.out.println("No existing ip for " + currentReceiver);
@@ -159,8 +164,7 @@ public class CommandSender {
                             OutputStream out = socket.getOutputStream();
                             String json = CommunicationConverter.fromMessageToJson(messageToBeSend);
                             out.write(json.getBytes());
-                        }
-                        else {
+                        } else {
                             System.out.println("Couldn't find the socket for " + memberIp + " to send the message in group " + groupName);
                         }
                     }
@@ -184,8 +188,7 @@ public class CommandSender {
             } catch (IOException e) {
                 System.out.println("Error sending the message <<" + message + ">> to group " + groupName);
             }
-        }
-        else {
+        } else {
             System.out.println("The group " + groupName + " doesn't exists");
         }
     }

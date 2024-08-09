@@ -1,6 +1,6 @@
 plugins {
     id("java")
-    id("org.springframework.boot") version "3.3.0"
+    id("org.springframework.boot") version "3.3.2"
     id("io.spring.dependency-management") version "1.1.5"
 }
 
@@ -21,14 +21,16 @@ dependencies {
     implementation("com.fasterxml.jackson.core:jackson-databind:2.16.1")
 
     // Spring Boot Starters
-    implementation("org.springframework.boot:spring-boot-starter-web:3.3.0")
-    implementation("org.springframework.boot:spring-boot-starter-actuator:3.3.0")
+    implementation("org.springframework.boot:spring-boot-starter-web:3.3.2")
+    implementation("org.springframework.boot:spring-boot-starter-actuator:3.3.2")
+    implementation("org.springframework.boot:spring-boot-starter-websocket:3.3.2")
+
 
     // Springdoc OpenAPI for Swagger
     implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.2.0")
 
     // Testing
-    testImplementation("org.springframework.boot:spring-boot-starter-test:3.3.0")
+    testImplementation("org.springframework.boot:spring-boot-starter-test:3.3.2")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 
 }
