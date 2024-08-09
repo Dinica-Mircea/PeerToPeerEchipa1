@@ -23,7 +23,7 @@ public class TCPChatReceiver extends Thread {
     SocketHandler socketHandler;
     DirectMessages directMessages;
 
-    public TCPChatReceiver(Socket clientSocket, GroupHandler groupHandler,DirectMessages directMessages) {
+    public TCPChatReceiver(Socket clientSocket, GroupHandler groupHandler, DirectMessages directMessages) {
         this.groupHandler = groupHandler;
         this.clientSocket = clientSocket;
         this.directMessages = directMessages;
@@ -58,7 +58,8 @@ public class TCPChatReceiver extends Thread {
             System.out.println("I am already member of group " + message.group);
             groupHandler.setGroupMembers(message.group, message.ips);
             try {
-                String myIp = InetAddress.getLocalHost().getHostAddress().trim(); System.out.println("Starting to initialize connections with group members");
+                String myIp = InetAddress.getLocalHost().getHostAddress().trim();
+                System.out.println("Starting to initialize connections with new group members for group " + message.group);
                 for (String memberIp : message.ips) {
                     if (!memberIp.equals(myIp)) {
                         if (socketHandler.getSocketByIp(memberIp) != null) {
@@ -69,6 +70,7 @@ public class TCPChatReceiver extends Thread {
                         }
                     }
                 }
+                System.out.println("Finished to initialize connections with new group members for group " + message.group);
 
             } catch (UnknownHostException e) {
                 System.out.println("can't get host address");
@@ -83,13 +85,14 @@ public class TCPChatReceiver extends Thread {
                 String myIp = InetAddress.getLocalHost().getHostAddress().trim();
                 System.out.println("Starting to initialize connections with group members");
                 for (String memberIp : message.ips) {
-                    if (!memberIp.equals(myIp) && socketHandler.getSocketByIp(memberIp) != null) {
-                            Socket groupMemberSocket = new Socket(memberIp, CommunicationProperties.PORT);
-                            socketHandler.addNewSocketIp(groupMemberSocket, memberIp);
-                            System.out.println("Connected with member of group" + message.group + " with ip: " + memberIp);
-                            directMessages.startNewChat(clientSocket);
+                    if (!memberIp.equals(myIp) && socketHandler.getSocketByIp(memberIp) == null) {
+                        Socket groupMemberSocket = new Socket(memberIp, CommunicationProperties.PORT);
+                        socketHandler.addNewSocketIp(groupMemberSocket, memberIp);
+                        System.out.println("Connected with member of group" + message.group + " with ip: " + memberIp);
+                        directMessages.startNewChat(clientSocket);
                     }
                 }
+                System.out.println("Finished initializing connections with group " + message.group);
             } catch (UnknownHostException e) {
                 System.out.println("can't get host address");
             } catch (IOException e) {
