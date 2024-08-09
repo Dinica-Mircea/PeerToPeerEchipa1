@@ -1,8 +1,7 @@
 package business;
 
 import business.directMessages.DirectMessages;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
+import domain.Message;
 import utils.CommunicationConverter;
 import utils.CommunicationProperties;
 
@@ -30,7 +29,7 @@ public class CommandSender {
         this.directMessages = directMessages;
     }
 
-    public void sendEcho(String msg) throws IOException {
+    public void sendMessage(String msg) throws IOException {
         if (msg.startsWith("!")) {
             sendCommand(msg);
         } else if (msg.startsWith("#")) {
@@ -46,14 +45,15 @@ public class CommandSender {
             System.out.println("No existing ip for " + currentReceiver);
         } else {
             OutputStream out = socket.getOutputStream();
-            String json = CommunicationConverter.fromMessageToJson(currentReceiver, msg);
+            Message message = new Message(CommunicationProperties.MY_NICKNAME, currentReceiver, msg);
+            String json = CommunicationConverter.fromMessageToJson(message);
             out.write(json.getBytes());
         }
     }
 
     private void updateCurrentReceiver(String msg) {
         String nextReceiver = msg.replace("#", "");
-        if (socketHandler.getIp(nextReceiver) != null) {
+        if (socketHandler.getIpFromNickname(nextReceiver) != null) {
             currentReceiver = nextReceiver;
             System.out.println("current receiver updated: " + currentReceiver);
         } else {
@@ -65,11 +65,12 @@ public class CommandSender {
         Socket clientSocket;
         try {
             System.out.println(nickname + "trying to connect");
-            DatagramPacket packet = CommunicationConverter.fromMessageToPacket(command, nickname, CommunicationProperties.SERVER_IP, CommunicationProperties.PORT);
+            Message ackMessage = new Message(CommunicationProperties.MY_NICKNAME, nickname, command);
+            DatagramPacket packet = CommunicationConverter.fromMessageToPacket(ackMessage, CommunicationProperties.SERVER_IP, CommunicationProperties.PORT);
             udpSocket.send(packet);
             if (socketHandler.getSocketByNickname(nickname) == null) {
-                clientSocket = new Socket(socketHandler.getIp(nickname), CommunicationProperties.PORT);
-                socketHandler.addNewSocketIp(clientSocket, socketHandler.getIp(nickname));
+                clientSocket = new Socket(socketHandler.getIpFromNickname(nickname), CommunicationProperties.PORT);
+                socketHandler.addNewSocketIp(clientSocket, socketHandler.getIpFromNickname(nickname));
                 System.out.println(nickname + " connected");
                 directMessages.startNewChat(clientSocket);
             }
@@ -89,22 +90,13 @@ public class CommandSender {
             }
             case "!group": {
                 String groupName = split[1];
-                List<String> groupIps = new ArrayList<>();
-                try {
-                    String myIp = InetAddress.getLocalHost().getHostAddress().trim();
-                    System.out.println("Creating group with ip: " + myIp);
-                    groupIps.add(myIp);
-                    groupHandler.addGroup(groupName, groupIps);
-                } catch (UnknownHostException e) {
-                    System.out.println("Can't get my ip.");
-                }
+                createNewGroup(groupName);
                 return;
             }
             case "!invite": {
                 String groupName = split[1];
                 String personToBeInvited = split[2];
-                groupHandler.addNicknameInPendingGroup(groupName, personToBeInvited);
-                sendGroupInvite(command, groupName, personToBeInvited);
+                sendInvite(groupName, personToBeInvited, command);
                 return;
             }
             case "!ackg": {
@@ -114,10 +106,7 @@ public class CommandSender {
             }
             case "!sendGroup": {
                 String groupName = split[1];
-                String message = Arrays.stream(split)
-                        .skip(2)
-                        .reduce("", (sub, elem) -> sub.concat(" " + elem)).trim();
-                sendMessageGroup(groupName, message);
+                sendGroupMessage(split, groupName);
                 return;
             }
             default: {
@@ -127,25 +116,72 @@ public class CommandSender {
         }
     }
 
+    private void sendInvite(String groupName, String personToBeInvited, String command) {
+        groupHandler.addNicknameInPendingGroup(groupName, personToBeInvited);
+        sendGroupInvite(command, groupName, personToBeInvited);
+    }
+
+    private void sendGroupMessage(String[] splitMessage, String groupName) {
+        String message = Arrays.stream(splitMessage)
+                .skip(2)
+                .reduce("", (currentMessage, currentWord) -> currentMessage.concat(" " + currentWord))
+                .trim();
+        sendMessageGroup(groupName, message);
+    }
+
+    private void createNewGroup(String groupName) {
+        List<String> groupIps = new ArrayList<>();
+        try {
+            String myIp = InetAddress.getLocalHost().getHostAddress().trim();
+            System.out.println("Creating group with ip: " + myIp);
+            groupIps.add(myIp);
+            groupHandler.addGroup(groupName, groupIps);
+        } catch (UnknownHostException e) {
+            System.out.println("Can't get my ip.");
+        }
+    }
+
     private void sendMessageGroup(String groupName, String message) {
         System.out.println("Sending the message <<" + message + ">> to group " + groupName);
         if (groupHandler.existsGroup(groupName)) {
             try {
                 String myIp = InetAddress.getLocalHost().getHostAddress().trim();
                 List<String> membersIps = groupHandler.getAllMembers(groupName);
-                membersIps.stream()
-                        .filter(membersIp -> !membersIp.equals(myIp))
-                        .map(socketHandler::getSocketByIp)
-                        .forEach(socket -> {
-                            try {
-                                OutputStream out = socket.getOutputStream();
-                                String json = CommunicationConverter.fromMessageGroupToJson("", message, groupName);
-                                out.write(json.getBytes());
-                            } catch (IOException e) {
-                                System.out.println("Couldn't send the message <<" + message + ">> in group " + groupName);
-                            }
-                        });
-            } catch (UnknownHostException e) {
+                System.out.println("I'm sending the message to " + membersIps + " from group " + groupName);
+                Message messageToBeSend = new Message(CommunicationProperties.MY_NICKNAME, "", message, groupName);
+                for (String memberIp : membersIps) {
+                    if (!memberIp.equals(myIp)) {
+                        System.out.println("Trying to send a message to " + memberIp + " in group " + groupName);
+                        Socket socket = socketHandler.getSocketByIp(memberIp);
+                        if (socket != null) {
+                            System.out.println("Sending <<" + message + ">> to " + socket.getInetAddress().getHostAddress()
+                                    + " in group " + groupName);
+                            OutputStream out = socket.getOutputStream();
+                            String json = CommunicationConverter.fromMessageToJson(messageToBeSend);
+                            out.write(json.getBytes());
+                        }
+                        else {
+                            System.out.println("Couldn't find the socket for " + memberIp + " to send the message in group " + groupName);
+                        }
+                    }
+                }
+//                membersIps.stream()
+//                        .filter(membersIp -> !membersIp.equals(myIp))
+//                        .map(socketHandler::getSocketByIp)
+//                        .forEach(socket -> {
+//                            try {
+//                                if (socket != null) {
+//                                    System.out.println("Sending <<" + message + ">> to " + socket.getInetAddress().getHostAddress()
+//                                            + " in group " + groupName);
+//                                    OutputStream out = socket.getOutputStream();
+//                                    String json = CommunicationConverter.fromMessageGroupToJson("", message, groupName);
+//                                    out.write(json.getBytes());
+//                                }
+//                            } catch (IOException e) {
+//                                System.out.println("Couldn't send the message <<" + message + ">> in group " + groupName);
+//                            }
+//                        });
+            } catch (IOException e) {
                 System.out.println("Error sending the message <<" + message + ">> to group " + groupName);
             }
         }
@@ -161,14 +197,15 @@ public class CommandSender {
             Socket clientSocket;
             try {
                 System.out.println(groupName + " trying to connect");
-                DatagramPacket packet = CommunicationConverter.fromMessageGroupToPacket(
-                        command, "", groupName, CommunicationProperties.SERVER_IP, CommunicationProperties.PORT);
+                Message ackgMessage = new Message(CommunicationProperties.MY_NICKNAME, "", command, groupName);
+                DatagramPacket packet = CommunicationConverter.fromMessageToPacket(
+                        ackgMessage, CommunicationProperties.SERVER_IP, CommunicationProperties.PORT);
                 udpSocket.send(packet);
                 System.out.println("Sent packet " + packet);
                 if (socketHandler.getSocketByIp(inviterIp) == null) {
                     clientSocket = new Socket(inviterIp, CommunicationProperties.PORT);
                     socketHandler.addNewSocketIp(clientSocket, inviterIp);
-                    System.out.println("Connected with inviter with ip: " + inviterIp + "for group " + groupName);
+                    System.out.println("Connected with inviter with ip: " + inviterIp + " for group " + groupName);
                     directMessages.startNewChat(clientSocket);
                 } else {
                     System.out.println("Already connected with ip: " + inviterIp);
@@ -183,7 +220,8 @@ public class CommandSender {
 
     private void sendGroupInvite(String command, String groupNickname, String receiver) {
         try {
-            DatagramPacket packet = CommunicationConverter.fromMessageGroupToPacket(command, receiver, groupNickname, CommunicationProperties.SERVER_IP, CommunicationProperties.PORT);
+            Message inviteMessage = new Message(CommunicationProperties.MY_NICKNAME, receiver, command, groupNickname);
+            DatagramPacket packet = CommunicationConverter.fromMessageToPacket(inviteMessage, CommunicationProperties.SERVER_IP, CommunicationProperties.PORT);
             udpSocket.send(packet);
         } catch (Exception e) {
             System.out.println(e.getMessage());
@@ -192,7 +230,8 @@ public class CommandSender {
 
     private void sendUdpMessage(String command, String nickname) {
         try {
-            DatagramPacket packet = CommunicationConverter.fromMessageToPacket(command, nickname, CommunicationProperties.SERVER_IP, CommunicationProperties.PORT);
+            Message newMessage = new Message(CommunicationProperties.MY_NICKNAME, nickname, command);
+            DatagramPacket packet = CommunicationConverter.fromMessageToPacket(newMessage, CommunicationProperties.SERVER_IP, CommunicationProperties.PORT);
             udpSocket.send(packet);
         } catch (Exception e) {
             System.out.println(e.getMessage());

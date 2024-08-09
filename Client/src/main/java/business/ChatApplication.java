@@ -1,7 +1,6 @@
 package business;
 
 import business.directMessages.DirectMessages;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
@@ -12,15 +11,15 @@ import java.util.Scanner;
 public class ChatApplication {
 
     UDPCommandReceiver UDPCommandReceiver;
-    CommandSender echoClient;
+    CommandSender commandSender;
 
     public ChatApplication() throws IOException {
         System.out.println("Creating socket by chat application");
         SocketHandler socketHandler = new SocketHandler();
         GroupHandler groupHandler = new GroupHandler();
-        DirectMessages directMessages = new DirectMessages(10, groupHandler);
+        DirectMessages directMessages = new DirectMessages(20, groupHandler);
         this.UDPCommandReceiver = new UDPCommandReceiver(socketHandler, groupHandler, directMessages);
-        this.echoClient = new CommandSender(socketHandler, groupHandler, directMessages);
+        this.commandSender = new CommandSender(socketHandler, groupHandler, directMessages);
     }
 
     public void runServer() {
@@ -36,9 +35,9 @@ public class ChatApplication {
             while (true) {
                 Scanner scanner = new Scanner(System.in);
                 String message = scanner.nextLine();
-                echoClient.sendEcho(message);
+                commandSender.sendMessage(message);
                 if (Objects.equals(message, "!stop")) {
-                    echoClient.close();
+                    commandSender.close();
                     break;
                 }
             }
@@ -49,7 +48,7 @@ public class ChatApplication {
 
     public void sendRequestFromRestService(String message) {
         try {
-            echoClient.sendEcho(message);
+            commandSender.sendMessage(message);
         } catch (IOException e) {
             System.out.println("Couldn't send message: " + message);
         }

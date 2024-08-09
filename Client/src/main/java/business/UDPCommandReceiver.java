@@ -102,8 +102,9 @@ public class UDPCommandReceiver {
             try {
                 if (socketHandler.getSocketByIp(ip) == null) {
                     System.out.println("Waiting for connection with new member" + ip);
-                    socketHandler.acceptNewClient(message.sender, ip);
+                    Socket clientSocket = socketHandler.acceptNewClient(message.sender, ip);
                     System.out.println("Connected with new member" + ip);
+                    directMessages.startNewChat(clientSocket);
                 }
                 List<String> groupIps = groupHandler.getAllMembers(message.group);
                 String myIp = InetAddress.getLocalHost().getHostAddress().trim();
@@ -128,7 +129,9 @@ public class UDPCommandReceiver {
         } else {
             System.out.println("Sending update to " + memberIp + "for group " + group);
             OutputStream out = socket.getOutputStream();
-            String json = CommunicationConverter.fromUpdateMessageToJson(group, groupIps);
+            Message updateMessage =
+                    new Message(CommunicationProperties.MY_NICKNAME, "", "!update", group, groupIps);
+            String json = CommunicationConverter.fromMessageToJson(updateMessage);
             out.write(json.getBytes());
         }
     }

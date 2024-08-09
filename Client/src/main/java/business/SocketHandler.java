@@ -1,6 +1,5 @@
 package business;
 
-import org.springframework.stereotype.Component;
 import utils.CommunicationProperties;
 
 import java.io.IOException;
@@ -27,6 +26,10 @@ public class SocketHandler {
     public Socket acceptNewClient(String nickname, String ip) throws IOException {
         synchronized (serverSocket) {
             Socket socket = serverSocket.accept();
+
+            // asteapta pe socket
+
+
             addNewSocketIpNickname(socket, ip, nickname);
             return socket;
         }
@@ -41,6 +44,7 @@ public class SocketHandler {
     }
 
     public void addNewSocketIp(Socket clientSocket, String ip) {
+        System.out.println("New socket added for " + ip);
         ipSocketsPair.put(ip, clientSocket);
     }
     public void addNewSocketIpNickname(Socket clientSocket, String ip, String nickname) {
@@ -48,7 +52,7 @@ public class SocketHandler {
         addNewSocketIp(clientSocket, ip);
     }
 
-    public String getIp(String nickname) {
+    public String getIpFromNickname(String nickname) {
         return nicknameIpPair.get(nickname);
     }
 

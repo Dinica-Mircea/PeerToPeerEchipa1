@@ -68,4 +68,8 @@ public class GroupHandler {
     public String removeReceivedInvite(String groupName) {
         return receivedInvitesGroupIpPair.remove(groupName);
     }
+
+    public void setGroupMembers(String groupName, List<String> ips) {
+        this.groups.put(groupName, ips);
+    }
 }

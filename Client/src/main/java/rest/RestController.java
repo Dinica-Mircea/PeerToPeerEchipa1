@@ -42,7 +42,7 @@ public class RestController {
         chatApplication.sendRequestFromRestService(HELLOCOMMAND+nickname);
     }
 
-    @RequestMapping(value="/acknowledge/{nickname}",method= RequestMethod.GET)
+    @RequestMapping(value="/acknowledge/person/{nickname}",method= RequestMethod.GET)
     public void acknowledgeUser(@PathVariable String nickname) {
         chatApplication.sendRequestFromRestService("!ack "+nickname);
     }
@@ -57,12 +57,12 @@ public class RestController {
         chatApplication.sendRequestFromRestService("!invite "+groupName+" "+personToBeInvited);
     }
 
-    @RequestMapping(value="/acknowledgeGroup/{groupName}",method= RequestMethod.GET)
+    @RequestMapping(value="/acknowledge/group/{groupName}",method= RequestMethod.GET)
     public void acknowledgeGroup(@PathVariable String groupName) {
         chatApplication.sendRequestFromRestService("!ackg "+groupName);
     }
 
-    @RequestMapping(value="/sendMessage/{nickname}",method= RequestMethod.POST)
+    @RequestMapping(value="/sendMessage/person/{nickname}",method= RequestMethod.POST)
     public void acknowledgeGroup(@RequestBody String message,@PathVariable String nickname) {
         chatApplication.sendRequestFromRestService("#"+nickname);
         chatApplication.sendRequestFromRestService(message);

@@ -56,6 +56,7 @@ public class TCPChatReceiver extends Thread {
     private void handleUpdateCommand(Message message) {
         if (groupHandler.existsGroup(message.group)) {
             System.out.println("I am already member of group " + message.group);
+            groupHandler.setGroupMembers(message.group, message.ips);
             try {
                 String myIp = InetAddress.getLocalHost().getHostAddress().trim(); System.out.println("Starting to initialize connections with group members");
                 for (String memberIp : message.ips) {
@@ -82,13 +83,11 @@ public class TCPChatReceiver extends Thread {
                 String myIp = InetAddress.getLocalHost().getHostAddress().trim();
                 System.out.println("Starting to initialize connections with group members");
                 for (String memberIp : message.ips) {
-                    if (!memberIp.equals(myIp)) {
-                        if (socketHandler.getSocketByIp(memberIp) != null) {
+                    if (!memberIp.equals(myIp) && socketHandler.getSocketByIp(memberIp) != null) {
                             Socket groupMemberSocket = new Socket(memberIp, CommunicationProperties.PORT);
                             socketHandler.addNewSocketIp(groupMemberSocket, memberIp);
                             System.out.println("Connected with member of group" + message.group + " with ip: " + memberIp);
                             directMessages.startNewChat(clientSocket);
-                        }
                     }
                 }
             } catch (UnknownHostException e) {
@@ -96,8 +95,6 @@ public class TCPChatReceiver extends Thread {
             } catch (IOException e) {
                 System.out.println(e.getMessage());
             }
-
-
         }
         System.out.println(message.ips);
     }
