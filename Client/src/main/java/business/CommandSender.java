@@ -12,16 +12,12 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-//@Component
 public class CommandSender {
     private String currentReceiver;
     private final DatagramSocket udpSocket;
-    //    @Autowired
     private final SocketHandler socketHandler;
-    //    @Autowired
-    private GroupHandler groupHandler;
-    //    @Autowired
-    private DirectMessages directMessages;
+    private final GroupHandler groupHandler;
+    private final DirectMessages directMessages;
 
     public CommandSender(SocketHandler socketHandler, GroupHandler groupHandler, DirectMessages directMessages) throws SocketException {
         this.socketHandler = socketHandler;
@@ -41,7 +37,7 @@ public class CommandSender {
     }
 
     private void sendDirectMessage(String msg) throws IOException {
-        if(currentReceiver == null) {
+        if (currentReceiver == null) {
             OutputHandler.handleOutput("No receiver selected");
             return;
         }

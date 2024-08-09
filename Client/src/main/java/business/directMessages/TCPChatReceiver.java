@@ -8,7 +8,6 @@ import domain.Message;
 import utils.CommunicationConverter;
 import utils.CommunicationProperties;
 
-import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.DatagramPacket;
@@ -18,7 +17,6 @@ import java.net.UnknownHostException;
 
 public class TCPChatReceiver extends Thread {
     private final Socket clientSocket;
-    private BufferedReader in;
     private byte[] buf = new byte[1024];
     GroupHandler groupHandler;
     SocketHandler socketHandler;
@@ -42,8 +40,7 @@ public class TCPChatReceiver extends Thread {
                         Message message = CommunicationConverter.fromPacketToMessage(packet);
                         if (message.message.equals("!update")) {
                             handleUpdateCommand(message);
-                        }
-                        else {
+                        } else {
                             System.out.println(message);
                             OutputHandler.handleOutput(message.toString());
                         }

@@ -5,7 +5,6 @@ import utils.CommunicationProperties;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -61,7 +60,7 @@ public class SocketHandler {
 
     public Socket getSocketByNickname(String nickname) {
         String ip = nicknameIpPair.get(nickname);
-        if(ip==null)
+        if (ip == null)
             return null;
         synchronized (ipSocketsPair) {
             if (ipSocketsPair.containsKey(ip)) {
@@ -81,16 +80,16 @@ public class SocketHandler {
     }
 
     public void remove(String nickname) {
-        String ip = nicknameIpPair.get(nickname);
-
-//        synchronized (ipSocketsPair) {
-        ipSocketsPair.remove(ip);
-        nicknameIpPair.remove(nickname);
-//        }
-    }
-
-    public List<Socket> getAllSockets(List<String> groupIps) {
-        return groupIps.stream().map(this::getSocketByIp)
-                .toList();
+        String ip;
+        if ((ip = nicknameIpPair.get(nickname)) != null) {
+            try {
+                ipSocketsPair.remove(ip).close();
+            } catch (IOException e) {
+                System.out.println(e.getMessage());
+            }
+            nicknameIpPair.remove(nickname);
+        } else {
+            System.out.println("No ip for " + nickname);
+        }
     }
 }
