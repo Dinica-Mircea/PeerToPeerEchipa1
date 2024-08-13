@@ -59,4 +59,8 @@ public class ChatApplication {
     public void addSession(WebSocketSession session) {
         outputHandler.add(session);
     }
+
+    public void removeSession(WebSocketSession session) {
+        outputHandler.remove(session);
+    }
 }

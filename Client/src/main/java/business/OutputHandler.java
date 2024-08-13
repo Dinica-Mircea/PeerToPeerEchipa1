@@ -37,4 +37,8 @@ public class OutputHandler {
         System.out.println("Added new session " + session);
         sessions.add(session);
     }
+
+    public void remove(WebSocketSession session) {
+        sessions.remove(session);
+    }
 }
