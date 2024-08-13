@@ -21,12 +21,14 @@ public class TCPChatReceiver extends Thread {
     GroupHandler groupHandler;
     SocketHandler socketHandler;
     DirectMessages directMessages;
+    private final OutputHandler outputHandler;
 
-    public TCPChatReceiver(Socket clientSocket, GroupHandler groupHandler, DirectMessages directMessages, SocketHandler socketHandler) {
+    public TCPChatReceiver(Socket clientSocket, GroupHandler groupHandler, DirectMessages directMessages, SocketHandler socketHandler, OutputHandler outputHandler) {
         this.groupHandler = groupHandler;
         this.clientSocket = clientSocket;
         this.directMessages = directMessages;
         this.socketHandler = socketHandler;
+        this.outputHandler = outputHandler;
     }
 
     @Override
@@ -42,12 +44,12 @@ public class TCPChatReceiver extends Thread {
                             handleUpdateCommand(message);
                         } else {
                             System.out.println(message);
-                            OutputHandler.handleOutput(message.toString());
+                            outputHandler.handleOutput(message.toString());
                         }
                     } catch (JsonProcessingException e) {
                         System.out.println(e.getMessage());
                     }
-                }else{
+                } else {
                     break;
                 }
             }
@@ -70,7 +72,7 @@ public class TCPChatReceiver extends Thread {
                             Socket groupMemberSocket = socketHandler.acceptNewClient(memberIp);
                             socketHandler.addNewSocketIp(groupMemberSocket, memberIp);
                             System.out.println("Connected with member of group" + message.group + " with ip: " + memberIp);
-                            OutputHandler.handleOutput("New member connected in group " + message.group);
+                            outputHandler.handleOutput("New member connected in group " + message.group);
                             directMessages.startNewChat(clientSocket);
                         }
                     }
@@ -99,7 +101,7 @@ public class TCPChatReceiver extends Thread {
                     }
                 }
                 System.out.println("Finished initializing connections with group " + message.group);
-                OutputHandler.handleOutput("Joined group " + message.group);
+                outputHandler.handleOutput("Joined group " + message.group);
             } catch (UnknownHostException e) {
                 System.out.println("can't get host address");
             } catch (IOException e) {

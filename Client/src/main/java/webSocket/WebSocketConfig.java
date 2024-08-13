@@ -13,12 +13,10 @@ public class WebSocketConfig implements WebSocketConfigurer {
 
     public WebSocketConfig(WebSocketHandler webSocketHandler) {
         this.webSocketHandler = webSocketHandler;
-//        System.out.println("Constructor web socket config");
     }
 
     @Override
     public void registerWebSocketHandlers(WebSocketHandlerRegistry registry) {
-//        System.out.println("registering socket");
         registry.addHandler(webSocketHandler, "/ws").setAllowedOrigins("*");
 
     }

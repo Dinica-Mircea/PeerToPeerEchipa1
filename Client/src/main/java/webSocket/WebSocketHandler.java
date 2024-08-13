@@ -7,13 +7,10 @@ import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.handler.TextWebSocketHandler;
 
-import java.io.IOException;
-
 @Component
 public class WebSocketHandler extends TextWebSocketHandler {
     @Autowired
     private ChatApplication chatApplication;
-    private static WebSocketSession session;
 
     public WebSocketHandler() {
         System.out.println("Created web socket handler");
@@ -22,19 +19,15 @@ public class WebSocketHandler extends TextWebSocketHandler {
     @Override
     protected void handleTextMessage(WebSocketSession session, TextMessage message) {
         String payload = message.getPayload();
+        System.out.println("Payload: " + payload);
         chatApplication.sendRequestFromRestService(payload);
     }
 
     @Override
     public void afterConnectionEstablished(WebSocketSession session) throws Exception {
         super.afterConnectionEstablished(session);
-        WebSocketHandler.session = session;
+        chatApplication.addSession(session);
     }
 
-    public static WebSocketSession getSession() throws IOException {
-        if (session == null) {
-            throw new IOException("No session connected");
-        }
-        return session;
-    }
+
 }
