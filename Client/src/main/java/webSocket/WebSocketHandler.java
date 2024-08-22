@@ -1,6 +1,7 @@
 package webSocket;
 
 import business.ChatApplication;
+import business.OutputHandler;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.TextMessage;
@@ -13,10 +14,19 @@ import java.io.IOException;
 public class WebSocketHandler extends TextWebSocketHandler {
     @Autowired
     private ChatApplication chatApplication;
-    private static WebSocketSession session;
+    @Autowired
+    private final OutputHandler outputHandler;
 
-    public WebSocketHandler() {
-        System.out.println("Created web socket handler");
+    public WebSocketHandler(OutputHandler outputHandler, ChatApplication chatApplication) {
+//        outputHandler = new OutputHandler();
+//        try {
+//            chatApplication = new ChatApplication(outputHandler);
+//        } catch (IOException e) {
+//            System.out.println("Couldn't create ChatApplication" + e.getMessage());
+//        }
+//        System.out.println("Created web socket handler");
+        this.outputHandler = outputHandler;
+        this.chatApplication = chatApplication;
     }
 
     @Override
@@ -25,16 +35,13 @@ public class WebSocketHandler extends TextWebSocketHandler {
         chatApplication.sendRequestFromRestService(payload);
     }
 
+
+
     @Override
     public void afterConnectionEstablished(WebSocketSession session) throws Exception {
         super.afterConnectionEstablished(session);
-        WebSocketHandler.session = session;
-    }
-
-    public static WebSocketSession getSession() throws IOException {
-        if (session == null) {
-            throw new IOException("No session connected");
-        }
-        return session;
+        outputHandler.add(session);
+        session.sendMessage(new TextMessage("!update direct " + chatApplication.getConnectedUsers()));
+        session.sendMessage(new TextMessage("!update group " + chatApplication.getGroups()));
     }
 }

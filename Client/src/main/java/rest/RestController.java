@@ -7,8 +7,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.event.EventListener;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
+import java.security.Principal;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -18,6 +20,7 @@ import java.util.concurrent.Executors;
 @CrossOrigin
 @ComponentScan("business")
 @ComponentScan("webSocket")
+@ComponentScan("auth")
 public class RestController {
     public static final String HELLOCOMMAND = "!hello ";
     @Autowired
@@ -71,6 +74,21 @@ public class RestController {
     @RequestMapping(value = "/sendMessage/group/{groupName}", method = RequestMethod.POST)
     public void sendMessageGroup(@RequestBody String message, @PathVariable String groupName) {
         chatApplication.sendRequestFromRestService("!sendGroup " + groupName + " " + message);
+    }
+
+    @GetMapping(path = "/")
+    public String index() {
+        return "external";
+    }
+
+    @GetMapping(path = "/login")
+//    public String customers(Principal principal, Model model) {
+    public String customers() {
+//        addCustomers();
+//        model.addAttribute("customers", customerDAO.findAll());
+//        model.addAttribute("username", principal.getName());
+        System.out.println("received login request");
+        return "true";
     }
 
 //    @RequestMapping(value="/bye/{nickname}",method= RequestMethod.GET)

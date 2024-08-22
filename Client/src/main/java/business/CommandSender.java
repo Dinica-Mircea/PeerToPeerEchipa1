@@ -2,6 +2,7 @@ package business;
 
 import business.directMessages.DirectMessages;
 import domain.Message;
+import org.springframework.web.socket.TextMessage;
 import utils.CommunicationConverter;
 import utils.CommunicationProperties;
 
@@ -18,15 +19,19 @@ public class CommandSender {
     private final SocketHandler socketHandler;
     private final GroupHandler groupHandler;
     private final DirectMessages directMessages;
+    private final OutputHandler outputHandler;
 
-    public CommandSender(SocketHandler socketHandler, GroupHandler groupHandler, DirectMessages directMessages) throws SocketException {
+
+    public CommandSender(SocketHandler socketHandler, GroupHandler groupHandler, DirectMessages directMessages, OutputHandler outputHandler) throws SocketException {
         this.socketHandler = socketHandler;
+        this.outputHandler = outputHandler;
         this.udpSocket = new DatagramSocket();
         this.groupHandler = groupHandler;
         this.directMessages = directMessages;
     }
 
     public void sendMessage(String msg) throws IOException {
+        System.out.println("I will process the message " + msg);
         if (msg.startsWith("!")) {
             sendCommand(msg);
         } else if (msg.startsWith("#")) {
@@ -38,13 +43,13 @@ public class CommandSender {
 
     private void sendDirectMessage(String msg) throws IOException {
         if (currentReceiver == null) {
-            OutputHandler.handleOutput("No receiver selected");
+            outputHandler.handleOutput("No receiver selected");
             return;
         }
         Socket socket = socketHandler.getSocketByNickname(currentReceiver);
         if (socket == null) {
             System.out.println("No existing ip for " + currentReceiver);
-            OutputHandler.handleOutput("Couldn't connect with " + currentReceiver);
+            outputHandler.handleOutput("Couldn't connect with " + currentReceiver);
         } else {
             OutputStream out = socket.getOutputStream();
             Message message = new Message(CommunicationProperties.MY_NICKNAME, currentReceiver, msg);
@@ -57,9 +62,9 @@ public class CommandSender {
         String nextReceiver = msg.replace("#", "");
         if (socketHandler.getIpFromNickname(nextReceiver) != null) {
             currentReceiver = nextReceiver;
-            OutputHandler.handleOutput("current receiver updated: " + currentReceiver);
+            outputHandler.handleOutput("current receiver updated: " + currentReceiver);
         } else {
-            OutputHandler.handleOutput(nextReceiver + " not connected");
+            outputHandler.handleOutput(nextReceiver + " not connected");
         }
     }
 
@@ -73,8 +78,10 @@ public class CommandSender {
             if (socketHandler.getSocketByNickname(nickname) == null) {
                 clientSocket = new Socket(socketHandler.getIpFromNickname(nickname), CommunicationProperties.PORT);
                 socketHandler.addNewSocketIp(clientSocket, socketHandler.getIpFromNickname(nickname));
-                OutputHandler.handleOutput(nickname + " connected");
+                outputHandler.handleOutput(nickname + " connected");
                 directMessages.startNewChat(clientSocket);
+                socketHandler.addDirectChatUser(nickname);
+                outputHandler.handleOutput("!update direct " + socketHandler.getDirectChatUsers().stream().reduce("", (sub, elem) -> sub.concat(elem) + ","));
             }
         } catch (IOException e) {
             System.out.println(e.getMessage());
@@ -113,8 +120,9 @@ public class CommandSender {
             }
             case "!bye":{
                 String nickname=split[1];
-                socketHandler.remove(nickname);
-                OutputHandler.handleOutput(nickname + " disconnected");
+//                socketHandler.remove(nickname);
+                socketHandler.removeDirectChatUser(nickname);
+                outputHandler.handleOutput(nickname + " disconnected");
             }
             default: {
                 String nickname = split[1];
@@ -141,12 +149,12 @@ public class CommandSender {
         try {
             String myIp = InetAddress.getLocalHost().getHostAddress().trim();
             System.out.println("Creating group with ip: " + myIp);
-            OutputHandler.handleOutput("Creating group: " + groupName);
+            outputHandler.handleOutput("Creating group: " + groupName);
             groupIps.add(myIp);
             groupHandler.addGroup(groupName, groupIps);
         } catch (UnknownHostException e) {
             System.out.println("Can't get my ip.");
-            OutputHandler.handleOutput("Couldn't create a group");
+            outputHandler.handleOutput("Couldn't create a group");
         }
     }
 
@@ -174,10 +182,10 @@ public class CommandSender {
                     }
                 }
             } catch (IOException e) {
-                OutputHandler.handleOutput("Error sending the message <<" + message + ">> to group " + groupName);
+                outputHandler.handleOutput("Error sending the message <<" + message + ">> to group " + groupName);
             }
         } else {
-            OutputHandler.handleOutput("The group " + groupName + " doesn't exist");
+            outputHandler.handleOutput("The group " + groupName + " doesn't exist");
         }
     }
 
@@ -188,7 +196,7 @@ public class CommandSender {
             Socket clientSocket;
             try {
                 System.out.println(groupName + " trying to connect");
-                Message ackgMessage = new Message(CommunicationProperties.MY_NICKNAME, "", command, groupName);
+                Message ackgMessage = new Message(CommunicationProperties.MY_NICKNAME, socketHandler.getIpFromNickname(inviterIp), command, groupName);
                 DatagramPacket packet = CommunicationConverter.fromMessageToPacket(
                         ackgMessage, CommunicationProperties.SERVER_IP, CommunicationProperties.PORT);
                 udpSocket.send(packet);
@@ -198,6 +206,7 @@ public class CommandSender {
                     socketHandler.addNewSocketIp(clientSocket, inviterIp);
                     System.out.println("Connected with inviter with ip: " + inviterIp + " for group " + groupName);
                     directMessages.startNewChat(clientSocket);
+                    outputHandler.handleOutput("!update group " + groupHandler.getGroupsNames().stream().reduce("", (sub, elem) -> sub.concat(elem) + ","));
                 } else {
                     System.out.println("Already connected with ip: " + inviterIp);
                 }
@@ -206,7 +215,7 @@ public class CommandSender {
             }
         } else {
             System.out.println("Didn't have the invitation for group " + groupName);
-            OutputHandler.handleOutput("Didn't have the invitation for group " + groupName);
+            outputHandler.handleOutput("Didn't have the invitation for group " + groupName);
         }
     }
 

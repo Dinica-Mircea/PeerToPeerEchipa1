@@ -15,6 +15,9 @@ public class GroupHandler {
         groups = new ConcurrentHashMap<>();
         sentInvitesNicknamesForGroup = new ConcurrentHashMap<>();
         receivedInvitesGroupIpPair = new ConcurrentHashMap<>();
+
+        groups.put("group1", new ArrayList<>());
+        groups.put("group2", new ArrayList<>());
     }
 
     public void addGroup(String groupName, List<String> members) {
@@ -68,5 +71,9 @@ public class GroupHandler {
 
     public void setGroupMembers(String groupName, List<String> ips) {
         this.groups.put(groupName, ips);
+    }
+
+    public List<String> getGroupsNames() {
+        return new ArrayList<>(groups.keySet());
     }
 }

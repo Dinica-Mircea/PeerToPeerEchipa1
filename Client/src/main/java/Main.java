@@ -1,4 +1,5 @@
 import business.ChatApplication;
+import business.OutputHandler;
 
 import java.io.IOException;
 import java.util.concurrent.ExecutorService;
@@ -13,7 +14,7 @@ public class Main {
     public static void main(String[] args) throws InterruptedException {
         ExecutorService executorService = Executors.newFixedThreadPool(3);
         try {
-            ChatApplication chatApplication = new ChatApplication();
+            ChatApplication chatApplication = new ChatApplication(new OutputHandler());
             executorService.submit(chatApplication::runServer);
             sleep(10);
             executorService.submit(chatApplication::runClient);

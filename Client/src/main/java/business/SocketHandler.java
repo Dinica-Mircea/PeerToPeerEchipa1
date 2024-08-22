@@ -5,6 +5,9 @@ import utils.CommunicationProperties;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -14,12 +17,17 @@ public class SocketHandler {
     private final ServerSocket serverSocket;
     private final Map<String, Socket> ipSocketsPair;
     private final Map<String, String> nicknameIpPair;
+    private final List<String> directChatUsers;
 
     public SocketHandler() throws IOException {
         System.out.println("Socket handler started");
         serverSocket = new ServerSocket(CommunicationProperties.PORT);
         ipSocketsPair = new ConcurrentHashMap<>();
         nicknameIpPair = new ConcurrentHashMap<>();
+        directChatUsers = Collections.synchronizedList(new ArrayList<>());
+
+//        directChatUsers.add("E");
+        directChatUsers.add("echipa10");
     }
 
     public Socket acceptNewClient(String nickname, String ip) throws IOException {
@@ -91,5 +99,17 @@ public class SocketHandler {
         } else {
             System.out.println("No ip for " + nickname);
         }
+    }
+
+    public void addDirectChatUser(String nickname) {
+        directChatUsers.add(nickname);
+    }
+
+    public List<String> getDirectChatUsers() {
+        return directChatUsers;
+    }
+
+    public void removeDirectChatUser(String nickname) {
+        directChatUsers.remove(nickname);
     }
 }
