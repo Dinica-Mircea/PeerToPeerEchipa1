@@ -33,15 +33,15 @@ dependencies {
     testImplementation("org.springframework.boot:spring-boot-starter-test:3.3.2")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 
-    //OAuth2
-    // https://mvnrepository.com/artifact/org.springframework.security/spring-security-oauth2-client
-    implementation("org.springframework.security:spring-security-oauth2-client:6.3.1")
-
-    // https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-starter-security
-    implementation("org.springframework.boot:spring-boot-starter-security:3.2.4")
-
-    // https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-starter-oauth2-resource-server
-    implementation("org.springframework.boot:spring-boot-starter-oauth2-resource-server:3.2.4")
+//    //OAuth2
+//    // https://mvnrepository.com/artifact/org.springframework.security/spring-security-oauth2-client
+//    implementation("org.springframework.security:spring-security-oauth2-client:6.3.1")
+//
+//    // https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-starter-security
+//    implementation("org.springframework.boot:spring-boot-starter-security:3.2.4")
+//
+//    // https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-starter-oauth2-resource-server
+//    implementation("org.springframework.boot:spring-boot-starter-oauth2-resource-server:3.2.4")
 
 }
 
