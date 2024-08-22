@@ -1,10 +1,10 @@
-package business;
+package org.example.business;
 
-import business.directMessages.DirectMessages;
-import domain.Message;
-import org.springframework.web.socket.TextMessage;
-import utils.CommunicationConverter;
-import utils.CommunicationProperties;
+import org.example.business.SocketHandler;
+import org.example.business.directMessages.DirectMessages;
+import org.example.domain.Message;
+import org.example.utils.CommunicationConverter;
+import org.example.utils.CommunicationProperties;
 
 import java.io.IOException;
 import java.io.OutputStream;

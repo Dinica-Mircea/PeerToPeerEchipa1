@@ -1,4 +1,4 @@
-package exceptions;
+package org.example.exceptions;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 

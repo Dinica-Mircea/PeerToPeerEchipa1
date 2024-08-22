@@ -1,8 +1,8 @@
-package business.directMessages;
+package org.example.business.directMessages;
 
-import business.GroupHandler;
-import business.OutputHandler;
-import business.SocketHandler;
+import org.example.business.GroupHandler;
+import org.example.business.OutputHandler;
+import org.example.business.SocketHandler;
 
 import java.net.Socket;
 import java.util.concurrent.ExecutorService;

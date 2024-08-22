@@ -1,9 +1,9 @@
-package utils;
+package org.example.utils;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import domain.Message;
-import exceptions.IncorrectMessageFormatException;
+import org.example.domain.Message;
+import org.example.exceptions.IncorrectMessageFormatException;
 
 import java.net.DatagramPacket;
 import java.net.InetAddress;

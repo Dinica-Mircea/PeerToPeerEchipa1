@@ -1,12 +1,13 @@
-package business.directMessages;
+package org.example.business.directMessages;
 
-import business.GroupHandler;
-import business.OutputHandler;
-import business.SocketHandler;
+import org.example.business.GroupHandler;
+import org.example.business.OutputHandler;
+import org.example.business.SocketHandler;
+import org.example.business.directMessages.DirectMessages;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import domain.Message;
-import utils.CommunicationConverter;
-import utils.CommunicationProperties;
+import org.example.domain.Message;
+import org.example.utils.CommunicationConverter;
+import org.example.utils.CommunicationProperties;
 
 import java.io.IOException;
 import java.io.InputStream;

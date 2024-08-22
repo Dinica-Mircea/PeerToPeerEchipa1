@@ -1,4 +1,4 @@
-package webSocket;
+package org.example.webSocket;
 
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.socket.WebSocketHandler;

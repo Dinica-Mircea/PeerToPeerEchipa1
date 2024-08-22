@@ -1,11 +1,10 @@
-package business;
+package org.example.business;
 
-import business.directMessages.DirectMessages;
+import org.example.business.directMessages.DirectMessages;
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.WebSocketSession;
 
 import java.io.IOException;
-import java.util.List;
 import java.util.Objects;
 import java.util.Scanner;
 

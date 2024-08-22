@@ -1,16 +1,14 @@
-package rest;
+package org.example.rest;
 
-import business.ChatApplication;
+import org.example.business.ChatApplication;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.event.EventListener;
-import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
-import java.security.Principal;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -18,9 +16,10 @@ import java.util.concurrent.Executors;
 @org.springframework.web.bind.annotation.RestController
 @RequestMapping("/api")
 @CrossOrigin
-@ComponentScan("business")
-@ComponentScan("webSocket")
-@ComponentScan("auth")
+//@ComponentScan("business")
+//@ComponentScan("webSocket")
+//@ComponentScan("auth")
+@ComponentScan("org.example")
 public class RestController {
     public static final String HELLOCOMMAND = "!hello ";
     @Autowired

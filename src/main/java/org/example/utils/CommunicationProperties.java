@@ -1,4 +1,4 @@
-package utils;
+package org.example.utils;
 
 public class CommunicationProperties {
     public static final String MY_NICKNAME = "echipa1";

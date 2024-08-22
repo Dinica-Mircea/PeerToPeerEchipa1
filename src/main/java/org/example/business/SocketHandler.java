@@ -1,6 +1,6 @@
-package business;
+package org.example.business;
 
-import utils.CommunicationProperties;
+import org.example.utils.CommunicationProperties;
 
 import java.io.IOException;
 import java.net.ServerSocket;

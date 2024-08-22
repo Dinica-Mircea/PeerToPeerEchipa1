@@ -1,9 +1,8 @@
-package business;
+package org.example.business;
 
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
-import webSocket.WebSocketHandler;
 
 import java.io.IOException;
 import java.util.ArrayList;
